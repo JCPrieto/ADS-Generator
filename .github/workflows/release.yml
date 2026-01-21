@@ -29,7 +29,8 @@ jobs:
           cache: maven
       - name: Get version
         id: version
-        run: echo "VERSION=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)" >> $GITHUB_OUTPUT
+        shell: bash
+        run: echo "VERSION=$(mvn -q -Dexpression=project.version -DforceStdout help:evaluate)" >> "$GITHUB_OUTPUT"
       - name: Run tests
         run: mvn -q clean test
       - name: Package app image
@@ -68,7 +69,8 @@ jobs:
           cache: maven
       - name: Get version
         id: version
-        run: echo "VERSION=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)" >> $GITHUB_OUTPUT
+        shell: bash
+        run: echo "VERSION=$(mvn -q -Dexpression=project.version -DforceStdout help:evaluate)" >> "$GITHUB_OUTPUT"
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
