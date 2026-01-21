@@ -5,6 +5,9 @@ on:
     branches:
       - master
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build ${{ matrix.os }}
@@ -39,16 +42,16 @@ jobs:
         if: matrix.os == 'linux'
         run: |
           cd target/dist
-          zip -r "ads-generator-${{ steps.version.outputs.VERSION }}-linux.zip" "ADS Generator"
+          zip -r "${{ github.workspace }}/ads-generator-${{ steps.version.outputs.VERSION }}-linux.zip" "ADS Generator"
       - name: Create zip (Windows)
         if: matrix.os == 'windows'
         run: |
-          Compress-Archive -Path "target/dist/ADS Generator/*" -DestinationPath "ads-generator-${{ steps.version.outputs.VERSION }}-windows.zip"
+          Compress-Archive -Path "target/dist/ADS Generator/*" -DestinationPath "$env:GITHUB_WORKSPACE/ads-generator-${{ steps.version.outputs.VERSION }}-windows.zip"
       - name: Create zip (mac)
         if: matrix.os == 'mac'
         run: |
           cd target/dist
-          zip -r "ads-generator-${{ steps.version.outputs.VERSION }}-mac.zip" "ADS Generator.app"
+          zip -r "${{ github.workspace }}/ads-generator-${{ steps.version.outputs.VERSION }}-mac.zip" "ADS Generator.app"
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -82,6 +85,7 @@ jobs:
           tag_name: v${{ steps.version.outputs.VERSION }}
           name: v${{ steps.version.outputs.VERSION }}
           generate_release_notes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             ads-generator-${{ steps.version.outputs.VERSION }}-linux.zip
             ads-generator-${{ steps.version.outputs.VERSION }}-windows.zip
