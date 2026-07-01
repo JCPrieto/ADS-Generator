@@ -74,7 +74,7 @@ public class Ventana extends JFrame implements ActionListener, WindowListener {
         menuArchivo.add(this.menuGuardar);
         menuArchivo.add(this.menuSalir);
         JMenu menuAyuda = new JMenu("Ayuda");
-        this.menuACercaDe = new JMenuItem("A cerca de...");
+        this.menuACercaDe = new JMenuItem("Acerca de...", new ImageIcon(getClass().getResource("/img/icons/info.png")));
         this.menuACercaDe.addActionListener(this);
         menuAyuda.add(this.menuACercaDe);
         this.barraMenu.add(menuArchivo);
