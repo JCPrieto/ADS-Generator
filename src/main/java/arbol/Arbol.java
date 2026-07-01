@@ -5,13 +5,13 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Arbol {
-    private String nombre;
-    private Nodo raiz;
-    private List<String> atributos;
+    private final String nombre;
+    private final Nodo raiz;
+    private final List<String> atributos;
 
     public Arbol(String text) {
         this.nombre = text;
-        this.atributos = new ArrayList();
+        this.atributos = new ArrayList<>();
         this.raiz = new Nodo("Inicio", this);
     }
 
@@ -20,21 +20,19 @@ public class Arbol {
     }
 
     public void addAtributos(List<Atributo> listaAtributos) {
-        Iterator it = listaAtributos.iterator();
 
-        while (it.hasNext()) {
-            Atributo a = (Atributo) it.next();
-            this.atributos.add(a.getNombre());
+        for (Atributo a : listaAtributos) {
+            this.addAtributo(a);
         }
 
     }
 
     public boolean contiene(Nodo n) {
         boolean enc = false;
-        Iterator it = this.getNodos();
+        Iterator<Nodo> it = this.getNodos();
 
         while (it.hasNext() && !enc) {
-            Nodo n2 = (Nodo) it.next();
+            Nodo n2 = it.next();
             if (n.getTitulo().equals(n2.getTitulo())) {
                 enc = true;
             }
@@ -44,11 +42,11 @@ public class Arbol {
     }
 
     public Nodo getNodo(String destino) {
-        Nodo n = null;
+        Nodo n;
         if (this.raiz.getTitulo().equals(destino)) {
             n = this.raiz;
         } else {
-            List<Nodo> l = new ArrayList();
+            List<Nodo> l = new ArrayList<>();
             l.add(this.raiz);
             n = this.getNodo(this.raiz, destino, l);
         }
@@ -62,10 +60,10 @@ public class Arbol {
         Nodo n;
         Nodo n2;
         for (n = null; n == null && it.hasNext(); l.add(n2)) {
-            n2 = (Nodo) it.next();
+            n2 = it.next();
             if (n2.getTitulo().equals(destino)) {
                 n = n2;
-            } else if (!this.contiene(l, n2)) {
+            } else if (this.noContiene(l, n2)) {
                 n = this.getNodo(n2, destino, l);
             }
         }
@@ -82,13 +80,11 @@ public class Arbol {
     }
 
     public Iterator<Nodo> getNodos() {
-        List<Nodo> l = new ArrayList();
+        List<Nodo> l = new ArrayList<>();
         l.add(this.raiz);
-        Iterator it = this.raiz.getHijos().iterator();
 
-        while (it.hasNext()) {
-            Nodo n = (Nodo) it.next();
-            if (!this.contiene(l, n)) {
+        for (Nodo n : this.raiz.getHijos()) {
+            if (this.noContiene(l, n)) {
                 l.add(n);
                 this.getNodos(l, n);
             }
@@ -98,11 +94,9 @@ public class Arbol {
     }
 
     private void getNodos(List<Nodo> l, Nodo n) {
-        Iterator it = n.getHijos().iterator();
 
-        while (it.hasNext()) {
-            Nodo n2 = (Nodo) it.next();
-            if (!this.contiene(l, n2)) {
+        for (Nodo n2 : n.getHijos()) {
+            if (this.noContiene(l, n2)) {
                 l.add(n2);
                 this.getNodos(l, n2);
             }
@@ -110,18 +104,18 @@ public class Arbol {
 
     }
 
-    private boolean contiene(List<Nodo> l, Nodo n2) {
+    private boolean noContiene(List<Nodo> l, Nodo n2) {
         Iterator<Nodo> it = l.iterator();
         boolean enc = false;
 
         while (it.hasNext() && !enc) {
-            Nodo n = (Nodo) it.next();
+            Nodo n = it.next();
             if (n.getTitulo().equals(n2.getTitulo())) {
                 enc = true;
             }
         }
 
-        return enc;
+        return !enc;
     }
 
     public void addNodo(Nodo nd) {
@@ -130,7 +124,9 @@ public class Arbol {
     }
 
     public void addAtributo(Atributo atr) {
-        this.atributos.add(atr.getNombre());
+        if (!this.atributos.contains(atr.nombre())) {
+            this.atributos.add(atr.nombre());
+        }
     }
 
     public boolean contieneAtributo(String valor) {

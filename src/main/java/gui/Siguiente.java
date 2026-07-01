@@ -4,27 +4,27 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.Serial;
 
 public class Siguiente extends JPanel {
+    @Serial
     private static final long serialVersionUID = 1L;
-    private Editor contenedor;
-    private JTextField condicion;
-    private JButton botonOk;
-    private JButton botonRemove;
-    private JTextField destino;
-    private JButton botonModificar;
+    private final Editor contenedor;
+    private final JTextField condicion;
+    private final JButton botonOk;
+    private final JButton botonRemove;
+    private final JTextField destino;
+    private final JButton botonModificar;
     private boolean modificacion;
 
     public Siguiente(arbol.Siguiente s, Editor editor) {
         this(editor);
-        this.condicion.setText(s.getCondicion());
+        this.condicion.setText(s.condicion());
         this.condicion.setEditable(false);
         this.botonOk.setEnabled(false);
         this.botonModificar.setEnabled(true);
         this.botonRemove.setEnabled(true);
-        this.destino.setText(s.getDestino());
+        this.destino.setText(s.destino());
         this.destino.setEditable(false);
     }
 
@@ -46,30 +46,18 @@ public class Siguiente extends JPanel {
         c.weightx = 1.0D;
         g.setConstraints(this.condicion, c);
         this.botonOk = new JButton("OK");
-        this.botonOk.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Siguiente.this.addSiguiente();
-            }
-        });
+        this.botonOk.addActionListener(e -> Siguiente.this.addSiguiente());
         c.gridx = 2;
         c.gridheight = 2;
         c.weightx = 0.0D;
         g.setConstraints(this.botonOk, c);
         this.botonModificar = new JButton("Modificar");
-        this.botonModificar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Siguiente.this.modificarSiguiente();
-            }
-        });
+        this.botonModificar.addActionListener(e -> Siguiente.this.modificarSiguiente());
         this.botonModificar.setEnabled(false);
         c.gridx = 3;
         g.setConstraints(this.botonModificar, c);
         this.botonRemove = new JButton("Eliminar");
-        this.botonRemove.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Siguiente.this.removeSiguiente();
-            }
-        });
+        this.botonRemove.addActionListener(e -> Siguiente.this.removeSiguiente());
         this.botonRemove.setEnabled(false);
         c.gridx = 4;
         g.setConstraints(this.botonRemove, c);

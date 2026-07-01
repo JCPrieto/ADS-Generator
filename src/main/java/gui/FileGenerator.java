@@ -128,36 +128,36 @@ public class FileGenerator {
     }
 
     private void escribirSiguientes(arbol.Siguiente s) throws IOException {
-        if (!s.getCondicion().isEmpty()) {
-            this.out.write("\t\t\tsi " + s.getCondicion() + " entonces " + this.conversion(s.getDestino()) + "\n");
+        if (!s.condicion().isEmpty()) {
+            this.out.write("\t\t\tsi " + s.condicion() + " entonces " + this.conversion(s.destino()) + "\n");
         } else {
-            this.out.write("\t\t\tentonces " + this.conversion(s.getDestino()) + "\n");
+            this.out.write("\t\t\tentonces " + this.conversion(s.destino()) + "\n");
         }
 
     }
 
     private void escribirValidacion(arbol.Validacion v) throws IOException {
-        this.out.write("\t\t\tsi " + v.getCondicion() + " mensaje \"" + v.getMensaje() + "\"\n");
+        this.out.write("\t\t\tsi " + v.condicion() + " mensaje \"" + v.mensaje() + "\"\n");
     }
 
     private void escribirCampo(arbol.Campo c) throws IOException {
-        this.out.write("\t\tcampo " + this.conversion(c.getNombre()) + "\n\t\t\ttipo " + c.getTipo().toLowerCase() + "\n\t\t\tetiqueta \"" + c.getEtiqueta() + "\"");
-        if (c.getTipo().equals("radio")) {
-            this.out.write("\n\t\t\topciones [" + this.opciones(c.getValor()) + "]");
-        } else if (!c.getTipo().equals("desplegable") && !c.getTipo().equals("lista")) {
-            if (!c.getValor().isEmpty()) {
-                if (this.contenedor.getArbol().contieneAtributo(c.getValor())) {
-                    this.out.write("\n\t\t\tvalor " + c.getValor());
+        this.out.write("\t\tcampo " + this.conversion(c.nombre()) + "\n\t\t\ttipo " + c.tipo().toLowerCase() + "\n\t\t\tetiqueta \"" + c.etiqueta() + "\"");
+        if (c.tipo().equals("radio")) {
+            this.out.write("\n\t\t\topciones [" + this.opciones(c.valor()) + "]");
+        } else if (!c.tipo().equals("desplegable") && !c.tipo().equals("lista")) {
+            if (!c.valor().isEmpty()) {
+                if (this.contenedor.getArbol().contieneAtributo(c.valor())) {
+                    this.out.write("\n\t\t\tvalor " + c.valor());
                 } else {
-                    this.out.write("\n\t\t\tvalor \"" + c.getValor() + "\"");
+                    this.out.write("\n\t\t\tvalor \"" + c.valor() + "\"");
                 }
             }
         } else {
-            this.out.write("\n\t\t\topciones [\"\"," + this.opciones(c.getValor()) + "]");
+            this.out.write("\n\t\t\topciones [\"\"," + this.opciones(c.valor()) + "]");
         }
 
-        if ((c.getTipo().equals("fijo") || c.getTipo().equals("imagen")) && !c.getEtiqueta().isEmpty()) {
-            this.out.write("\n\t\t\tenlaza \"" + c.getEnlace() + "\"");
+        if ((c.tipo().equals("fijo") || c.tipo().equals("imagen")) && !c.etiqueta().isEmpty()) {
+            this.out.write("\n\t\t\tenlaza \"" + c.enlace() + "\"");
         }
 
         this.out.write("\n");
@@ -179,15 +179,15 @@ public class FileGenerator {
     }
 
     private void escribirAtributo(arbol.Atributo a) throws IOException {
-        this.out.write("\t\tatributo " + a.getNombre());
-        if (!a.getDescripcion().isEmpty()) {
-            this.out.write("\n\t\t\tdescripcion \"" + a.getDescripcion() + "\"");
+        this.out.write("\t\tatributo " + a.nombre());
+        if (!a.descripcion().isEmpty()) {
+            this.out.write("\n\t\t\tdescripcion \"" + a.descripcion() + "\"");
         }
 
-        if (this.contenedor.getArbol().contieneAtributo(a.getValor())) {
-            this.out.write("\n\t\t\tvalor " + a.getValor() + "\n");
+        if (this.contenedor.getArbol().contieneAtributo(a.valor())) {
+            this.out.write("\n\t\t\tvalor " + a.valor() + "\n");
         } else {
-            this.out.write("\n\t\t\tvalor \"" + a.getValor() + "\"\n");
+            this.out.write("\n\t\t\tvalor \"" + a.valor() + "\"\n");
         }
 
     }

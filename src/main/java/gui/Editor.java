@@ -188,7 +188,7 @@ public class Editor extends JPanel implements ActionListener {
             a = new Advertencia("<html><b>La condici�n ya esta especificada.<br>Indique otra condicion para ir al siguiente nodo.</b></html>");
             a.setVisible(true);
             siguiente.cancelaAdd();
-        } else if (((Nodo) this.listaNodos.getSelectedItem()).getTitulo().equals(sig.getDestino())) {
+        } else if (((Nodo) this.listaNodos.getSelectedItem()).getTitulo().equals(sig.destino())) {
             a = new Advertencia("<html><b>Un nodo no debe conducir a si mismo</b></html>");
             a.setVisible(true);
             siguiente.cancelaAdd();
@@ -366,7 +366,7 @@ public class Editor extends JPanel implements ActionListener {
         List<String> l = new ArrayList<>(this.arbol.getAtributos());
 
         for (arbol.Atributo a : this.listaAtributos) {
-            l.add(a.getNombre());
+            l.add(a.nombre());
         }
 
         Collections.sort(l);

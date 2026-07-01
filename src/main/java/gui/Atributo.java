@@ -4,27 +4,27 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.Serial;
 
 public class Atributo extends JPanel {
+    @Serial
     private static final long serialVersionUID = 1L;
-    private Editor contenedor;
-    private JTextField nombre;
-    private JTextField valor;
-    private JTextField descripcion;
-    private JButton botonOk;
-    private JButton botonRemove;
-    private JButton botonModificar;
+    private final Editor contenedor;
+    private final JTextField nombre;
+    private final JTextField valor;
+    private final JTextField descripcion;
+    private final JButton botonOk;
+    private final JButton botonRemove;
+    private final JButton botonModificar;
     private boolean modificacion;
 
     public Atributo(arbol.Atributo a, Editor editor) {
         this(editor);
-        this.nombre.setText(a.getNombre());
+        this.nombre.setText(a.nombre());
         this.nombre.setEditable(false);
-        this.valor.setText(a.getValor());
+        this.valor.setText(a.valor());
         this.valor.setEditable(false);
-        this.descripcion.setText(a.getDescripcion());
+        this.descripcion.setText(a.descripcion());
         this.descripcion.setEditable(false);
         this.botonOk.setEnabled(false);
         this.botonModificar.setEnabled(true);
@@ -69,11 +69,7 @@ public class Atributo extends JPanel {
         c.weightx = 1.0D;
         g.setConstraints(this.descripcion, c);
         this.botonOk = new JButton("OK");
-        this.botonOk.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Atributo.this.addAtributo();
-            }
-        });
+        this.botonOk.addActionListener(e -> Atributo.this.addAtributo());
         c.gridx = 4;
         c.gridy = 0;
         c.gridheight = 2;
@@ -81,20 +77,12 @@ public class Atributo extends JPanel {
         c.weightx = 0.0D;
         g.setConstraints(this.botonOk, c);
         this.botonModificar = new JButton("Modificar");
-        this.botonModificar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Atributo.this.modificarAtributo();
-            }
-        });
+        this.botonModificar.addActionListener(e -> Atributo.this.modificarAtributo());
         this.botonModificar.setEnabled(false);
         c.gridx = 5;
         g.setConstraints(this.botonModificar, c);
         this.botonRemove = new JButton("Eliminar");
-        this.botonRemove.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Atributo.this.removeAtributo();
-            }
-        });
+        this.botonRemove.addActionListener(e -> Atributo.this.removeAtributo());
         this.botonRemove.setEnabled(false);
         c.gridx = 6;
         g.setConstraints(this.botonRemove, c);

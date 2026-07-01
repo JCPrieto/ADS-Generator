@@ -1,24 +1,20 @@
 package arbol;
 
-public class Validacion {
-    private String condicion;
-    private String mensaje;
+import java.util.Objects;
 
-    public Validacion(String condicion2, String mensaje2) {
-        this.condicion = condicion2;
-        this.mensaje = mensaje2;
-    }
-
-    public String getCondicion() {
-        return this.condicion;
-    }
-
-    public String getMensaje() {
-        return this.mensaje;
-    }
+public record Validacion(String condicion, String mensaje) {
 
     public boolean equals(Object o) {
-        Validacion v = (Validacion) o;
-        return this.condicion.equals(v.condicion);
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Validacion v)) {
+            return false;
+        }
+        return Objects.equals(this.condicion, v.condicion);
+    }
+
+    public int hashCode() {
+        return Objects.hash(this.condicion);
     }
 }

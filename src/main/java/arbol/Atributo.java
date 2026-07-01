@@ -1,37 +1,20 @@
 package arbol;
 
-public class Atributo {
-    private String nombre;
-    private String valor;
-    private String descripcion;
+import java.util.Objects;
 
-    public Atributo(String nombre2, String valor2, String descripcion2) {
-        this.nombre = nombre2;
-        this.valor = valor2;
-        this.descripcion = descripcion2;
-    }
-
-    public String getNombre() {
-        return this.nombre;
-    }
-
-    public String getValor() {
-        return this.valor;
-    }
-
-    public String getDescripcion() {
-        return this.descripcion;
-    }
+public record Atributo(String nombre, String valor, String descripcion) {
 
     public boolean equals(Object o) {
-        Atributo a = (Atributo) o;
-        boolean b;
-        if (this.nombre.equals(a.nombre)) {
-            b = true;
-        } else {
-            b = false;
+        if (this == o) {
+            return true;
         }
+        if (!(o instanceof Atributo a)) {
+            return false;
+        }
+        return Objects.equals(this.nombre, a.nombre);
+    }
 
-        return b;
+    public int hashCode() {
+        return Objects.hash(this.nombre);
     }
 }

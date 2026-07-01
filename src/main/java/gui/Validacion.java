@@ -2,27 +2,27 @@ package gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.Serial;
 
 public class Validacion extends JPanel {
+    @Serial
     private static final long serialVersionUID = 1L;
-    private Editor contenedor;
-    private JTextField condicion;
-    private JButton botonOk;
-    private JButton botonRemove;
-    private JTextArea mensaje;
-    private JButton botonModificar;
+    private final Editor contenedor;
+    private final JTextField condicion;
+    private final JButton botonOk;
+    private final JButton botonRemove;
+    private final JTextArea mensaje;
+    private final JButton botonModificar;
     private boolean modificacion;
 
     public Validacion(arbol.Validacion v, Editor editor) {
         this(editor);
-        this.condicion.setText(v.getCondicion());
+        this.condicion.setText(v.condicion());
         this.condicion.setEditable(false);
         this.botonOk.setEnabled(false);
         this.botonModificar.setEnabled(true);
         this.botonRemove.setEnabled(true);
-        this.mensaje.setText(v.getMensaje());
+        this.mensaje.setText(v.mensaje());
         this.mensaje.setEditable(false);
         this.mensaje.setOpaque(false);
     }
@@ -45,30 +45,18 @@ public class Validacion extends JPanel {
         c.weightx = 1.0D;
         g.setConstraints(this.condicion, c);
         this.botonOk = new JButton("OK");
-        this.botonOk.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Validacion.this.addValidacion();
-            }
-        });
+        this.botonOk.addActionListener(e -> Validacion.this.addValidacion());
         c.gridx = 2;
         c.gridheight = 2;
         c.weightx = 0.0D;
         g.setConstraints(this.botonOk, c);
         this.botonModificar = new JButton("Modificar");
-        this.botonModificar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Validacion.this.modificarValidacion();
-            }
-        });
+        this.botonModificar.addActionListener(e -> Validacion.this.modificarValidacion());
         this.botonModificar.setEnabled(false);
         c.gridx = 3;
         g.setConstraints(this.botonModificar, c);
         this.botonRemove = new JButton("Eliminar");
-        this.botonRemove.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Validacion.this.removeValidacion();
-            }
-        });
+        this.botonRemove.addActionListener(e -> Validacion.this.removeValidacion());
         this.botonRemove.setEnabled(false);
         c.gridx = 4;
         g.setConstraints(this.botonRemove, c);

@@ -26,16 +26,16 @@ public class Campo extends JPanel {
 
     public Campo(arbol.Campo cmp, Editor editor) {
         this(editor);
-        this.nombre.setText(cmp.getNombre());
+        this.nombre.setText(cmp.nombre());
         this.nombre.setEditable(false);
-        this.tipo.setSelectedItem(cmp.getTipo());
+        this.tipo.setSelectedItem(cmp.tipo());
         this.tipo.setEditable(false);
-        this.etiqueta.setText(cmp.getEtiqueta());
+        this.etiqueta.setText(cmp.etiqueta());
         this.etiqueta.setEditable(false);
         this.etqValor.setText(this.getEtqValor((String) this.tipo.getSelectedItem()));
-        this.valor.setText(cmp.getValor());
+        this.valor.setText(cmp.valor());
         this.valor.setEditable(false);
-        this.enlaza.setText(cmp.getEnlace());
+        this.enlaza.setText(cmp.enlace());
         this.enlaza.setEditable(false);
         this.botonOk.setEnabled(false);
         this.botonModificar.setEnabled(true);

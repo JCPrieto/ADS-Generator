@@ -185,9 +185,9 @@ public class Proyecto {
 
         while (ita.hasNext()) {
             Atributo a = ita.next();
-            Element atributo = new Element(this.conversion(a.getNombre()));
-            atributo.setAttribute("Valor", a.getValor());
-            atributo.setAttribute("Descripcion", a.getDescripcion());
+            Element atributo = new Element(this.conversion(a.nombre()));
+            atributo.setAttribute("Valor", a.valor());
+            atributo.setAttribute("Descripcion", a.descripcion());
             atributos.addContent(atributo);
         }
 
@@ -197,11 +197,11 @@ public class Proyecto {
 
         while (itc.hasNext()) {
             Campo c = itc.next();
-            Element campo = new Element(this.conversion(c.getNombre()));
-            campo.setAttribute("Tipo", c.getTipo());
-            campo.setAttribute("Etiqueta", c.getEtiqueta());
-            campo.setAttribute("Valor", c.getValor());
-            campo.setAttribute("Enlace", c.getEnlace());
+            Element campo = new Element(this.conversion(c.nombre()));
+            campo.setAttribute("Tipo", c.tipo());
+            campo.setAttribute("Etiqueta", c.etiqueta());
+            campo.setAttribute("Valor", c.valor());
+            campo.setAttribute("Enlace", c.enlace());
             campos.addContent(campo);
         }
 
@@ -213,8 +213,8 @@ public class Proyecto {
         for (i = 1; itv.hasNext(); ++i) {
             Validacion v = itv.next();
             Element validacion = new Element("Validacion_" + i);
-            validacion.setAttribute("Condicion", v.getCondicion());
-            validacion.setAttribute("Mensaje", v.getMensaje());
+            validacion.setAttribute("Condicion", v.condicion());
+            validacion.setAttribute("Mensaje", v.mensaje());
             validaciones.addContent(validacion);
         }
 
@@ -225,8 +225,8 @@ public class Proyecto {
         for (i = 1; its.hasNext(); ++i) {
             Siguiente s = its.next();
             Element siguiente = new Element("Siguiente_" + i);
-            siguiente.setAttribute("Condicion", s.getCondicion());
-            siguiente.setAttribute("Destino", s.getDestino());
+            siguiente.setAttribute("Condicion", s.condicion());
+            siguiente.setAttribute("Destino", s.destino());
             siguientes.addContent(siguiente);
         }
 
