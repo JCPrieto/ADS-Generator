@@ -1,82 +1,118 @@
 package gui;
 
+import auxiliar.IconUtils;
+import auxiliar.UrlMouseListener;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.Serial;
 
-public class DialogoAcerca extends JDialog implements ActionListener, MouseListener {
+public class DialogoAcerca extends JDialog {
+    @Serial
     private static final long serialVersionUID = 2L;
-    private JLabel etq1;
-    private JLabel etq2;
-    private JLabel etq3;
-    private JButton botonOk;
-    private JPanel panel;
+    private static final String APP_NAME = "ADS Generator";
+    private static final String APP_ICON = "ADS2.png";
+    private static final String GPL_ICON = "gplv3-with-text-136x68.png";
+    private static final String AUTHOR_WEB = "https://www.jcprieto.es";
+    private static final String AUTHOR_EMAIL = "JuanC.Prieto.Silos@gmail.com";
+    private static final String GPL_URL = "https://www.gnu.org/licenses/gpl-3.0.html";
 
     public DialogoAcerca(Ventana ventana) {
-        super(ventana);
-        super.setIconImage((new ImageIcon(ventana.getIcono())).getImage());
-        this.panel = new JPanel();
-        this.panel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        this.panel.setLayout(new BoxLayout(this.panel, 1));
-        this.etq1 = new JLabel("ADS Generator " + ventana.getVersion());
-        this.etq1.setAlignmentX(0.5F);
-        this.etq2 = new JLabel("Creado por: Juan Carlos Prieto Silos");
-        this.etq2.setAlignmentX(0.5F);
-        this.etq3 = new JLabel("JuanC.Prieto.Silos@gmail.com");
-        this.etq3.setAlignmentX(0.5F);
-        this.etq3.setForeground(Color.blue);
-        this.etq3.addMouseListener(this);
-        this.botonOk = new JButton("Aceptar");
-        this.botonOk.setAlignmentX(0.5F);
-        this.botonOk.addActionListener(this);
-        this.panel.add(this.etq1);
-        this.panel.add(new JLabel(" "));
-        this.panel.add(this.etq2);
-        this.panel.add(new JLabel(" "));
-        this.panel.add(this.etq3);
-        this.panel.add(new JLabel(" "));
-        this.panel.add(this.botonOk);
-        super.add(this.panel);
+        super(ventana, "Acerca de", true);
+        super.setIconImage(ventana.getIconImage());
+        this.cargarPantalla(ventana);
+    }
+
+    private static JLabel crearEtiquetaUrl(String texto, String url) {
+        JLabel label = new JLabel(texto, SwingConstants.LEFT);
+        label.addMouseListener(new UrlMouseListener(label, url));
+        return label;
+    }
+
+    private static void addUrlMouseListener(JLabel label, String url) {
+        label.addMouseListener(new UrlMouseListener(label, url));
+    }
+
+    private void cargarPantalla(Ventana ventana) {
+        JPanel panel = new JPanel();
+        int yPosition = 0;
+        panel.setLayout(new GridBagLayout());
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        GridBagConstraints cns = new GridBagConstraints();
+
+        JLabel titulo = new JLabel("<html><h1>" + APP_NAME + " " + ventana.getVersion() + "</h1></html>",
+                IconUtils.loadIconScaled(APP_ICON, 64, 64), SwingConstants.CENTER);
+        cns.fill = GridBagConstraints.HORIZONTAL;
+        cns.insets = new Insets(10, 10, 10, 10);
+        cns.gridx = 0;
+        cns.gridy = yPosition++;
+        cns.gridwidth = 3;
+        panel.add(titulo, cns);
+
+        JLabel creadoPor = new JLabel("Creado por:", SwingConstants.LEFT);
+        cns.insets = new Insets(10, 10, 3, 10);
+        cns.gridy = yPosition++;
+        cns.gridwidth = 1;
+        panel.add(creadoPor, cns);
+
+        JLabel autor = new JLabel("<html><b>Juan Carlos Prieto Silos</b></html>", SwingConstants.LEFT);
+        cns.insets = new Insets(3, 10, 3, 10);
+        cns.gridy = yPosition;
+        panel.add(autor, cns);
+
+        JLabel web = crearEtiquetaUrl(AUTHOR_WEB, AUTHOR_WEB);
+        cns.gridx = 1;
+        panel.add(web, cns);
+
+        JLabel correo = crearEtiquetaUrl(AUTHOR_EMAIL, "mailto:" + AUTHOR_EMAIL + "?subject=ADS_Generator");
+        cns.gridx = 2;
+        panel.add(correo, cns);
+
+        JLabel poweredBy = new JLabel("Powered by:", SwingConstants.LEFT);
+        cns.insets = new Insets(10, 10, 3, 10);
+        cns.gridx = 0;
+        cns.gridy = ++yPosition;
+        cns.gridwidth = 1;
+        panel.add(poweredBy, cns);
+
+        addPowered(panel, cns, ++yPosition, "JGraphX", "https://github.com/vlsi/jgraphx");
+        addPowered(panel, cns, ++yPosition, "JDOM", "https://www.jdom.org/");
+        addPowered(panel, cns, ++yPosition, "SwingX", "https://central.sonatype.com/artifact/org.swinglabs/swingx/1.6.1");
+        addPowered(panel, cns, ++yPosition, "Gson", "https://github.com/google/gson");
+        addPowered(panel, cns, ++yPosition, "Apache Commons IO", "https://commons.apache.org/proper/commons-io/");
+
+        JLabel licencia = new JLabel("Licencia GNU General Public License v3.0 (GPL-3.0)", IconUtils.loadIcon(GPL_ICON), SwingConstants.CENTER);
+        addUrlMouseListener(licencia, GPL_URL);
+        cns.insets = new Insets(10, 10, 10, 10);
+        cns.gridx = 0;
+        cns.gridy = ++yPosition;
+        cns.gridwidth = 3;
+        panel.add(licencia, cns);
+
+        JButton botonOk = new JButton("Aceptar");
+        botonOk.setToolTipText("Aceptar");
+        botonOk.addActionListener(al -> this.dispose());
+        cns.gridy = ++yPosition;
+        panel.add(botonOk, cns);
+
+        super.add(panel);
         super.pack();
+        super.setLocationRelativeTo(ventana);
     }
 
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == this.botonOk) {
-            this.dispose();
-        }
+    private void addPowered(JPanel panel, GridBagConstraints cns, int y, String titulo, String url) {
+        JLabel etiquetaTitulo = crearEtiquetaUrl("<html><b>" + titulo + "</b></html>", url);
+        cns.insets = new Insets(3, 10, 3, 10);
+        cns.gridx = 0;
+        cns.gridy = y;
+        cns.gridwidth = 1;
+        panel.add(etiquetaTitulo, cns);
 
-    }
-
-    public void mouseClicked(MouseEvent e) {
-    }
-
-    public void mouseEntered(MouseEvent e) {
-        this.setCursor(new Cursor(12));
-    }
-
-    public void mouseExited(MouseEvent e) {
-        this.setCursor(new Cursor(0));
-    }
-
-    public void mousePressed(MouseEvent e) {
-        try {
-            Desktop.getDesktop().browse(new URI("mailto:juanc.prieto.ext@juntadeandalucia.es?subject=ADS_Generator"));
-            this.etq3.setForeground(Color.red);
-        } catch (IOException var3) {
-            var3.printStackTrace();
-        } catch (URISyntaxException var4) {
-            var4.printStackTrace();
-        }
-
-    }
-
-    public void mouseReleased(MouseEvent e) {
+        JLabel etiquetaUrl = crearEtiquetaUrl(url, url);
+        cns.gridx = 1;
+        cns.gridy = y;
+        cns.gridwidth = 2;
+        panel.add(etiquetaUrl, cns);
     }
 }

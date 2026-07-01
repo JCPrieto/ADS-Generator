@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -106,7 +107,7 @@ public final class UtilidadesGitHub {
                     break;
                 }
             }
-            if (digits.length() == 0) {
+            if (digits.isEmpty()) {
                 return 0;
             }
             return Integer.parseInt(digits.toString());
@@ -115,29 +116,66 @@ public final class UtilidadesGitHub {
         }
     }
 
-    public static void descargarNuevaVersion(javax.swing.JFrame parent) throws InterruptedException {
+    public static void descargarNuevaVersionAsync(javax.swing.JFrame parent) {
         JFileChooser fc = new JFileChooser();
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int retorno = fc.showSaveDialog(parent);
-        if (retorno == JFileChooser.APPROVE_OPTION) {
-            File directorio = fc.getSelectedFile();
-            try {
-                ReleaseInfo releaseInfo = fetchLatestRelease();
-                if (releaseInfo != null && releaseInfo.downloadUrl != null) {
+        if (retorno != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File directorio = fc.getSelectedFile();
+        parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        SwingWorker<DownloadResult, Void> worker = new SwingWorker<>() {
+            private Exception error;
+
+            @Override
+            protected DownloadResult doInBackground() {
+                try {
+                    ReleaseInfo releaseInfo = fetchLatestRelease();
+                    if (releaseInfo == null || releaseInfo.downloadUrl == null) {
+                        return DownloadResult.notFound();
+                    }
+                    File destino = new File(directorio.getPath() + FileSystems.getDefault().getSeparator() + releaseInfo.assetName);
                     FileUtils.copyURLToFile(
                             URI.create(releaseInfo.downloadUrl).toURL(),
-                            new File(directorio.getPath() + FileSystems.getDefault().getSeparator() + releaseInfo.assetName));
-                    JOptionPane.showMessageDialog(parent, "Nueva version descargada correctamente.");
-                } else {
-                    JOptionPane.showMessageDialog(parent, "No se encontro un archivo de descarga en la release.", "Actualizacion", JOptionPane.INFORMATION_MESSAGE);
+                            destino,
+                            CONNECT_TIMEOUT_MS,
+                            READ_TIMEOUT_MS);
+                    return DownloadResult.downloaded();
+                } catch (Exception e) {
+                    error = e;
+                    return DownloadResult.failed();
                 }
-            } catch (AccessDeniedException e) {
-                JOptionPane.showMessageDialog(parent, "No hay permisos de escritura en la carpeta seleccionada.", "Actualizacion", JOptionPane.ERROR_MESSAGE);
-                descargarNuevaVersion(parent);
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(parent, "Error al descargar la nueva version.", "Actualizacion", JOptionPane.ERROR_MESSAGE);
             }
-        }
+
+            @Override
+            protected void done() {
+                parent.setCursor(Cursor.getDefaultCursor());
+                if (error instanceof AccessDeniedException) {
+                    JOptionPane.showMessageDialog(parent, "No hay permisos de escritura en la carpeta seleccionada.", "Actualizacion", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if (error != null) {
+                    JOptionPane.showMessageDialog(parent, "Error al descargar la nueva version.", "Actualizacion", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                try {
+                    DownloadResult result = get();
+                    if (result.success) {
+                        JOptionPane.showMessageDialog(parent, "Nueva version descargada correctamente.");
+                    } else {
+                        JOptionPane.showMessageDialog(parent, "No se encontro un archivo de descarga en la release.", "Actualizacion", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    JOptionPane.showMessageDialog(parent, "Descarga interrumpida.", "Actualizacion", JOptionPane.ERROR_MESSAGE);
+                } catch (java.util.concurrent.ExecutionException e) {
+                    JOptionPane.showMessageDialog(parent, "Error al descargar la nueva version.", "Actualizacion", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        worker.execute();
     }
 
     private static ReleaseInfo fetchLatestRelease() throws IOException {
@@ -230,5 +268,19 @@ public final class UtilidadesGitHub {
     }
 
     private record ReleaseInfo(String version, String assetName, String downloadUrl) {
+    }
+
+    private record DownloadResult(boolean success) {
+        private static DownloadResult downloaded() {
+            return new DownloadResult(true);
+        }
+
+        private static DownloadResult notFound() {
+            return new DownloadResult(false);
+        }
+
+        private static DownloadResult failed() {
+            return new DownloadResult(false);
+        }
     }
 }

@@ -1,25 +1,27 @@
 package arbol;
 
+import auxiliar.NormalizadorNombres;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class Nodo {
-    private String titulo;
+    private final String titulo;
     private List<Nodo> hijos;
     private List<Campo> campos;
     private List<Atributo> atributos;
-    private Arbol arbol;
+    private final Arbol arbol;
     private List<Validacion> validaciones;
     private List<Siguiente> siguientes;
 
     public Nodo(String string, Arbol arbol) {
-        this.titulo = string.replace(" ", "_");
-        this.hijos = new ArrayList();
-        this.campos = new ArrayList();
-        this.atributos = new ArrayList();
-        this.validaciones = new ArrayList();
-        this.siguientes = new ArrayList();
+        this.titulo = NormalizadorNombres.paraIdentificador(string);
+        this.hijos = new ArrayList<>();
+        this.campos = new ArrayList<>();
+        this.atributos = new ArrayList<>();
+        this.validaciones = new ArrayList<>();
+        this.siguientes = new ArrayList<>();
         this.arbol = arbol;
     }
 
@@ -44,29 +46,33 @@ public class Nodo {
     }
 
     public void addAtributos(List<Atributo> listaAtributos) {
-        this.atributos.addAll(listaAtributos);
+        for (Atributo atributo : listaAtributos) {
+            this.addAtributos(atributo);
+        }
         this.arbol.addAtributos(listaAtributos);
     }
 
     public void addCampos(List<Campo> listaCampos) {
-        this.campos.addAll(listaCampos);
+        for (Campo campo : listaCampos) {
+            this.addCampo(campo);
+        }
     }
 
     public void addValidaciones(List<Validacion> listaValidaciones) {
-        this.validaciones.addAll(listaValidaciones);
+        for (Validacion validacion : listaValidaciones) {
+            this.addValidacion(validacion);
+        }
     }
 
     public void addSiguiente(List<Siguiente> listaSiguientes) {
-        this.siguientes.addAll(listaSiguientes);
-        Iterator it = listaSiguientes.iterator();
 
-        while (it.hasNext()) {
-            Siguiente s = (Siguiente) it.next();
-            Nodo n = new Nodo(s.getDestino(), this.arbol);
+        for (Siguiente s : listaSiguientes) {
+            this.addSiguiente(s);
+            Nodo n = new Nodo(s.destino(), this.arbol);
             if (this.arbol.contiene(n)) {
-                this.hijos.add(this.arbol.getNodo(s.getDestino()));
+                this.addHijo(this.arbol.getNodo(s.destino()));
             } else {
-                this.hijos.add(n);
+                this.addHijo(n);
             }
         }
 
@@ -83,11 +89,11 @@ public class Nodo {
     public int getNumHijos() {
         int x = this.hijos.size();
         Iterator<Nodo> it = this.hijos.iterator();
-        ArrayList nodosRecorridos = new ArrayList();
+        List<Nodo> nodosRecorridos = new ArrayList<>();
 
         while (it.hasNext()) {
-            Nodo n = (Nodo) it.next();
-            if (!this.contiene(nodosRecorridos, n)) {
+            Nodo n = it.next();
+            if (this.noContiene(nodosRecorridos, n)) {
                 nodosRecorridos.add(n);
                 x += n.getNumHijos(nodosRecorridos);
             }
@@ -96,27 +102,25 @@ public class Nodo {
         return x;
     }
 
-    private boolean contiene(List<Nodo> nodosRecorridos, Nodo n) {
+    private boolean noContiene(List<Nodo> nodosRecorridos, Nodo n) {
         Iterator<Nodo> it = nodosRecorridos.iterator();
         boolean enc = false;
 
         while (it.hasNext() && !enc) {
-            Nodo n1 = (Nodo) it.next();
+            Nodo n1 = it.next();
             if (n.getTitulo().equals(n1.getTitulo())) {
                 enc = true;
             }
         }
 
-        return enc;
+        return !enc;
     }
 
     private int getNumHijos(List<Nodo> nodosRecorridos) {
         int x = this.hijos.size();
-        Iterator it = this.hijos.iterator();
 
-        while (it.hasNext()) {
-            Nodo n = (Nodo) it.next();
-            if (!this.contiene(nodosRecorridos, n)) {
+        for (Nodo n : this.hijos) {
+            if (this.noContiene(nodosRecorridos, n)) {
                 nodosRecorridos.add(n);
                 x += n.getNumHijos(nodosRecorridos);
             }
@@ -128,13 +132,12 @@ public class Nodo {
     public void removeHijo(String destino) {
         Iterator<Nodo> it = this.hijos.iterator();
         boolean enc = false;
-        Nodo n = null;
 
         while (it.hasNext() && !enc) {
-            n = (Nodo) it.next();
+            Nodo n = it.next();
             if (n.getTitulo().equals(destino)) {
                 enc = true;
-                this.hijos.remove(n);
+                it.remove();
             }
         }
 
@@ -161,7 +164,9 @@ public class Nodo {
     }
 
     public void addAtributos(Atributo atr) {
-        this.atributos.add(atr);
+        if (!this.atributos.contains(atr)) {
+            this.atributos.add(atr);
+        }
     }
 
     public void actualiza(Nodo nd) {
@@ -173,31 +178,32 @@ public class Nodo {
     }
 
     public void addCampo(Campo cmp) {
-        this.campos.add(cmp);
+        if (!this.campos.contains(cmp)) {
+            this.campos.add(cmp);
+        }
     }
 
     public void addValidacion(Validacion val) {
-        this.validaciones.add(val);
+        if (!this.validaciones.contains(val)) {
+            this.validaciones.add(val);
+        }
     }
 
     public void addHijo(Nodo hijo) {
+        Nodo nodo = hijo;
         if (this.arbol.contiene(hijo)) {
-            this.hijos.add(this.arbol.getNodo(hijo.getTitulo()));
-        } else {
-            this.hijos.add(hijo);
+            nodo = this.arbol.getNodo(hijo.getTitulo());
+        }
+        if (this.noContiene(this.hijos, nodo)) {
+            this.hijos.add(nodo);
         }
 
     }
 
     public void addSiguiente(Siguiente sgt) {
-        this.siguientes.add(sgt);
+        if (!this.siguientes.contains(sgt)) {
+            this.siguientes.add(sgt);
+        }
     }
 
-    public int getNumHijosDirectos() {
-        return this.hijos.size();
-    }
-
-    public Nodo getPrimeHijo() {
-        return (Nodo) this.hijos.get(0);
-    }
 }

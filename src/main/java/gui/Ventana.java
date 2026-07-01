@@ -1,6 +1,8 @@
 package gui;
 
 import arbol.Arbol;
+import auxiliar.IconUtils;
+import auxiliar.Logger;
 import auxiliar.UtilidadesGitHub;
 import auxiliar.VersionApp;
 import data.Proyecto;
@@ -10,62 +12,61 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.Serial;
 
 public class Ventana extends JFrame implements ActionListener, WindowListener {
+    @Serial
     private static final long serialVersionUID = 2L;
-    private static final String ICONO_RECURSO = "/img/icons/ADS2.png";
+    private static final String ICONO_RECURSO = "ADS2.png";
+    private static final String INFO_ICONO_RECURSO = "info.png";
     private JMenuBar barraMenu;
-    private JMenu menuArchivo;
     private JMenuItem menuNuevo;
     private JMenuItem menuAbrir;
     private JMenuItem menuSalir;
-    private JMenu menuAyuda;
     private JMenuItem menuACercaDe;
-    private JSplitPane split;
-    private Grafo panelGrafo;
-    private Editor panelEditor;
+    private final Grafo panelGrafo;
+    private final Editor panelEditor;
     private Arbol arbol;
     private Proyecto p;
     private JMenuItem menuGuardar;
 
     public Ventana() {
         super("ADS Generator " + VersionApp.getVersion());
-        java.net.URL iconUrl = Ventana.class.getResource(ICONO_RECURSO);
-        if (iconUrl != null) {
-            super.setIconImage((new ImageIcon(iconUrl)).getImage());
-        }
+        cargarIconoAplicacion();
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException var2) {
-            var2.printStackTrace();
-        } catch (InstantiationException var3) {
-            var3.printStackTrace();
-        } catch (IllegalAccessException var4) {
-            var4.printStackTrace();
-        } catch (UnsupportedLookAndFeelException var5) {
-            var5.printStackTrace();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
+                 UnsupportedLookAndFeelException var2) {
+            Logger.error("Establecer Look and Feel", var2);
         }
 
-        super.setDefaultCloseOperation(0);
+        super.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         this.p = new Proyecto();
         this.cargarBarraMenu();
-        this.split = new JSplitPane();
+        JSplitPane split = new JSplitPane();
         this.panelGrafo = new Grafo(this);
         JScrollPane scrollGrafo = new JScrollPane();
         scrollGrafo.setViewportView(this.panelGrafo);
         this.panelEditor = new Editor(this);
-        this.split.setLeftComponent(scrollGrafo);
-        this.split.setRightComponent(this.panelEditor);
-        this.split.setDividerLocation(600);
-        super.add(this.split);
+        split.setLeftComponent(scrollGrafo);
+        split.setRightComponent(this.panelEditor);
+        split.setDividerLocation(600);
+        super.add(split);
         this.addWindowListener(this);
         this.comprobarNuevaVersion(this.barraMenu);
     }
 
+    private void cargarIconoAplicacion() {
+        java.util.List<java.awt.Image> iconos = IconUtils.loadWindowIcons(ICONO_RECURSO);
+        if (!iconos.isEmpty()) {
+            super.setIconImages(iconos);
+        }
+    }
+
     private void cargarBarraMenu() {
         this.barraMenu = new JMenuBar();
-        this.menuArchivo = new JMenu("Archivo");
+        JMenu menuArchivo = new JMenu("Archivo");
         this.menuNuevo = new JMenuItem("Nuevo proyecto");
         this.menuNuevo.addActionListener(this);
         this.menuAbrir = new JMenuItem("Abrir");
@@ -74,16 +75,16 @@ public class Ventana extends JFrame implements ActionListener, WindowListener {
         this.menuGuardar.addActionListener(this);
         this.menuSalir = new JMenuItem("Salir");
         this.menuSalir.addActionListener(this);
-        this.menuArchivo.add(this.menuNuevo);
-        this.menuArchivo.add(this.menuAbrir);
-        this.menuArchivo.add(this.menuGuardar);
-        this.menuArchivo.add(this.menuSalir);
-        this.menuAyuda = new JMenu("Ayuda");
-        this.menuACercaDe = new JMenuItem("A cerca de...");
+        menuArchivo.add(this.menuNuevo);
+        menuArchivo.add(this.menuAbrir);
+        menuArchivo.add(this.menuGuardar);
+        menuArchivo.add(this.menuSalir);
+        JMenu menuAyuda = new JMenu("Ayuda");
+        this.menuACercaDe = new JMenuItem("Acerca de...", IconUtils.loadIcon(INFO_ICONO_RECURSO));
         this.menuACercaDe.addActionListener(this);
-        this.menuAyuda.add(this.menuACercaDe);
-        this.barraMenu.add(this.menuArchivo);
-        this.barraMenu.add(this.menuAyuda);
+        menuAyuda.add(this.menuACercaDe);
+        this.barraMenu.add(menuArchivo);
+        this.barraMenu.add(menuAyuda);
         super.setJMenuBar(this.barraMenu);
     }
 
@@ -140,7 +141,8 @@ public class Ventana extends JFrame implements ActionListener, WindowListener {
     public void actualizarGrafo() {
         this.p.SetSaved(false);
         this.panelGrafo.actualizar();
-        this.panelGrafo.paintAll(this.panelGrafo.getGraphics());
+        this.panelGrafo.revalidate();
+        this.panelGrafo.repaint();
     }
 
     public void generarArchivo() {
@@ -153,12 +155,7 @@ public class Ventana extends JFrame implements ActionListener, WindowListener {
     }
 
     private void descargarNuevaVersion() {
-        try {
-            UtilidadesGitHub.descargarNuevaVersion(this);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            JOptionPane.showMessageDialog(this, "Descarga interrumpida.", "Actualizacion", JOptionPane.ERROR_MESSAGE);
-        }
+        UtilidadesGitHub.descargarNuevaVersionAsync(this);
     }
 
     public void windowActivated(WindowEvent e) {
@@ -189,8 +186,13 @@ public class Ventana extends JFrame implements ActionListener, WindowListener {
     }
 
     public void abrirProyecto(String selectedValue) {
-        this.p = new Proyecto(selectedValue);
-        this.arbol = this.p.getArbol();
+        Proyecto proyecto = new Proyecto(selectedValue);
+        Arbol arbolCargado = proyecto.getArbol();
+        if (arbolCargado == null) {
+            return;
+        }
+        this.p = proyecto;
+        this.arbol = arbolCargado;
         this.panelGrafo.crearArbol(this.arbol);
         this.panelEditor.crearArbol(this.arbol);
     }

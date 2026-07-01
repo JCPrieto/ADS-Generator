@@ -8,8 +8,11 @@ generacion de guias para el interprete ADS, reduciendo errores manuales.
 - Asistente guiado para crear guias ADS coherentes y sin errores manuales.
 - Editor visual basado en Swing y JGraphX para construir el arbol de la guia.
 - Gestion de atributos, campos, validaciones y siguientes por nodo.
-- Guardado del proyecto en `.pds` (XML) y exportacion a `.ads` para el interprete ADS.
+- Guardado del proyecto en `.pds` (XML) en la carpeta de datos del usuario y exportacion a `.ads` para el interprete
+  ADS.
 - Interfaz dividida con panel grafico y editor de propiedades para uso en CAU.
+- Comprobacion y descarga de nuevas versiones desde GitHub.
+- Registro de errores en ficheros de log rotativos.
 
 ## Requisitos
 
@@ -63,6 +66,24 @@ mvn -q exec:java -Dexec.mainClass=gui.Principal
 
 - `.pds`: XML del proyecto, usado para guardar/abrir guias en la GUI.
 - `.ads`: guia generada para el interprete ADS.
+
+## Datos de usuario
+
+La aplicacion guarda sus datos fuera de la carpeta de instalacion:
+
+- Windows: `%LOCALAPPDATA%\ADS Generator`
+- macOS: `~/Library/Application Support/ADS Generator`
+- Linux: `~/.local/share/ADS Generator`
+
+Dentro de esa carpeta se usan:
+
+- `projects`: proyectos `.pds`.
+- `logs`: ficheros de log rotativos.
+
+Se pueden sobrescribir estas rutas con propiedades de sistema:
+
+- `-Dads.projects.dir=/ruta/proyectos`
+- `-Dads.logs.dir=/ruta/logs`
 
 ## Ejemplo de guia `.ads`
 
@@ -125,6 +146,8 @@ Orientado al equipo CAU para crear y mantener guias ADS consistentes que agilice
 - JGraphX (grafo)
 - JDOM (XML)
 - SwingX (componentes)
+- Gson (GitHub API)
+- Apache Commons IO (descargas)
 
 ## Changelog
 

@@ -7,6 +7,8 @@
 - `src/main/resources` holds non-code assets (e.g., `ADS2.png`).
 - `src/test/java` is the test root; it is currently empty.
 - `pom.xml` defines the Maven build and Java 21 toolchain.
+- Runtime project files are stored under the user data folder in `projects/`, not in the application working directory.
+- Runtime logs are stored under the user data folder in `logs/`.
 
 ## Build, Test, and Development Commands
 
@@ -40,3 +42,6 @@
 
 - The project targets Java 21; ensure your local JDK matches `pom.xml`.
 - Assets belong in `src/main/resources` and should be referenced from code via the classpath.
+- Load icons through `auxiliar.IconUtils` using names relative to `src/main/resources/img/icons`.
+- User data paths are centralized in `auxiliar.UtilidadesFichero`; use `ads.projects.dir` and `ads.logs.dir` only as
+  overrides.

@@ -6,34 +6,36 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serial;
+import java.util.Objects;
 
 public class Campo extends JPanel {
+    @Serial
     private static final long serialVersionUID = 1L;
-    private JButton botonModificar;
-    private JButton botonOk;
-    private JButton botonRemove;
-    private Editor contenedor;
-    private JTextField enlaza;
-    private JTextField etiqueta;
-    private JLabel etqEnlaza;
-    private JLabel etqValor;
+    private final JButton botonModificar;
+    private final JButton botonOk;
+    private final JButton botonRemove;
+    private final Editor contenedor;
+    private final JTextField enlaza;
+    private final JTextField etiqueta;
+    private final JLabel etqValor;
     private boolean modificacion;
-    private JTextField nombre;
-    private JComboBox<?> tipo;
-    private JTextArea valor;
+    private final JTextField nombre;
+    private final JComboBox<?> tipo;
+    private final JTextArea valor;
 
     public Campo(arbol.Campo cmp, Editor editor) {
         this(editor);
-        this.nombre.setText(cmp.getNombre());
+        this.nombre.setText(cmp.nombre());
         this.nombre.setEditable(false);
-        this.tipo.setSelectedItem(cmp.getTipo());
+        this.tipo.setSelectedItem(cmp.tipo());
         this.tipo.setEditable(false);
-        this.etiqueta.setText(cmp.getEtiqueta());
+        this.etiqueta.setText(cmp.etiqueta());
         this.etiqueta.setEditable(false);
         this.etqValor.setText(this.getEtqValor((String) this.tipo.getSelectedItem()));
-        this.valor.setText(cmp.getValor());
+        this.valor.setText(cmp.valor());
         this.valor.setEditable(false);
-        this.enlaza.setText(cmp.getEnlace());
+        this.enlaza.setText(cmp.enlace());
         this.enlaza.setEditable(false);
         this.botonOk.setEnabled(false);
         this.botonModificar.setEnabled(true);
@@ -63,7 +65,7 @@ public class Campo extends JPanel {
         c.gridx = 2;
         c.weightx = 0.0D;
         g.setConstraints(etqTipo, c);
-        this.tipo = new JComboBox(arbol.Campo.getListaTipos());
+        this.tipo = new JComboBox<>(arbol.Campo.getListaTipos());
         this.tipo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (Campo.this.tipo.getSelectedIndex() != 0) {
@@ -95,22 +97,18 @@ public class Campo extends JPanel {
         c.gridx = 3;
         c.weightx = 1.0D;
         g.setConstraints(this.valor, c);
-        this.etqEnlaza = new JLabel("Enlaza: ");
+        JLabel etqEnlaza = new JLabel("Enlaza: ");
         c.gridx = 0;
         c.gridy = 2;
         c.weightx = 0.0D;
-        g.setConstraints(this.etqEnlaza, c);
+        g.setConstraints(etqEnlaza, c);
         this.enlaza = new JTextField();
         this.enlaza.setEditable(false);
         c.gridx = 1;
         c.gridwidth = 5;
         g.setConstraints(this.enlaza, c);
         this.botonOk = new JButton("OK");
-        this.botonOk.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Campo.this.addCampo();
-            }
-        });
+        this.botonOk.addActionListener(e -> Campo.this.addCampo());
         c.gridx = 4;
         c.gridy = 0;
         c.gridheight = 2;
@@ -118,20 +116,12 @@ public class Campo extends JPanel {
         c.weightx = 0.0D;
         g.setConstraints(this.botonOk, c);
         this.botonModificar = new JButton("Modificar");
-        this.botonModificar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Campo.this.modificarCampo();
-            }
-        });
+        this.botonModificar.addActionListener(e -> Campo.this.modificarCampo());
         this.botonModificar.setEnabled(false);
         c.gridx = 5;
         g.setConstraints(this.botonModificar, c);
         this.botonRemove = new JButton("Eliminar");
-        this.botonRemove.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Campo.this.removeCampo();
-            }
-        });
+        this.botonRemove.addActionListener(e -> Campo.this.removeCampo());
         this.botonRemove.setEnabled(false);
         c.gridx = 6;
         g.setConstraints(this.botonRemove, c);
@@ -146,7 +136,7 @@ public class Campo extends JPanel {
         super.add(this.botonOk);
         super.add(this.botonModificar);
         super.add(this.botonRemove);
-        super.add(this.etqEnlaza);
+        super.add(etqEnlaza);
         super.add(this.enlaza);
     }
 
@@ -188,7 +178,7 @@ public class Campo extends JPanel {
     }
 
     public String getEnlace() {
-        return !this.tipo.getSelectedItem().equals("fijo") && !this.tipo.getSelectedItem().equals("imagen") ? "" : this.enlaza.getText();
+        return !Objects.equals(this.tipo.getSelectedItem(), "fijo") && !Objects.equals(this.tipo.getSelectedItem(), "imagen") ? "" : this.enlaza.getText();
     }
 
     public String getEtiqueta() {
@@ -240,6 +230,7 @@ public class Campo extends JPanel {
     }
 
     protected void repintar() {
-        this.paintAll(this.getGraphics());
+        this.revalidate();
+        this.repaint();
     }
 }

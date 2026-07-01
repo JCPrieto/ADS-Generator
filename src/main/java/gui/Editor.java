@@ -7,37 +7,39 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 public class Editor extends JPanel implements ActionListener {
+    @Serial
     private static final long serialVersionUID = 1L;
     private Arbol arbol;
-    private JButton botonCancelar;
-    private JButton botonGuardar;
-    private Ventana contenedor;
-    private List<arbol.Atributo> listaAtributos;
-    private List<arbol.Campo> listaCampos;
-    private JComboBox<Nodo> listaNodos;
-    private List<arbol.Siguiente> listaSiguientes;
-    private List<arbol.Validacion> listaValidaciones;
+    private final JButton botonCancelar;
+    private final JButton botonGuardar;
+    private final Ventana contenedor;
+    private final List<arbol.Atributo> listaAtributos;
+    private final List<arbol.Campo> listaCampos;
+    private final JComboBox<Nodo> listaNodos;
+    private final List<arbol.Siguiente> listaSiguientes;
+    private final List<arbol.Validacion> listaValidaciones;
     private JPanel panelAtributos;
     private JPanel panelCampos;
-    private JPanel panelElementos;
+    private final JPanel panelElementos;
     private JPanel panelSiguiente;
     private JPanel panelValidacion;
-    private JScrollPane scrollElementos;
+    private final JScrollPane scrollElementos;
 
     public Editor(Ventana ventana) {
         this.contenedor = ventana;
-        this.listaAtributos = new ArrayList();
-        this.listaCampos = new ArrayList();
-        this.listaValidaciones = new ArrayList();
-        this.listaSiguientes = new ArrayList();
+        this.listaAtributos = new ArrayList<>();
+        this.listaCampos = new ArrayList<>();
+        this.listaValidaciones = new ArrayList<>();
+        this.listaSiguientes = new ArrayList<>();
         super.setLayout(new BorderLayout());
-        this.listaNodos = new JComboBox();
+        this.listaNodos = new JComboBox<>();
         this.listaNodos.addActionListener(this);
         this.panelElementos = new JPanel();
         this.inicializaPanelElementos();
@@ -65,7 +67,8 @@ public class Editor extends JPanel implements ActionListener {
                 this.cargarNodo((Nodo) this.listaNodos.getSelectedItem());
                 this.botonGuardar.setEnabled(true);
                 this.botonCancelar.setEnabled(true);
-                this.paintAll(this.getGraphics());
+                this.revalidate();
+                this.repaint();
             } else {
                 this.limpiarVentana();
                 this.botonGuardar.setEnabled(false);
@@ -82,7 +85,8 @@ public class Editor extends JPanel implements ActionListener {
             this.recargarListaNodos();
             this.limpiarVentana();
             this.contenedor.actualizarGrafo();
-            this.paintAll(this.getGraphics());
+            this.revalidate();
+            this.repaint();
         }
 
         if (arg0.getSource() == this.botonCancelar) {
@@ -184,7 +188,7 @@ public class Editor extends JPanel implements ActionListener {
             a = new Advertencia("<html><b>La condici�n ya esta especificada.<br>Indique otra condicion para ir al siguiente nodo.</b></html>");
             a.setVisible(true);
             siguiente.cancelaAdd();
-        } else if (((Nodo) this.listaNodos.getSelectedItem()).getTitulo().equals(sig.getDestino())) {
+        } else if (((Nodo) this.listaNodos.getSelectedItem()).getTitulo().equals(sig.destino())) {
             a = new Advertencia("<html><b>Un nodo no debe conducir a si mismo</b></html>");
             a.setVisible(true);
             siguiente.cancelaAdd();
@@ -246,8 +250,8 @@ public class Editor extends JPanel implements ActionListener {
         c.weighty = 1.0D;
         int i = 0;
 
-        for (Iterator it = selectedItem.getAtributos(); it.hasNext(); ++i) {
-            arbol.Atributo a = (arbol.Atributo) it.next();
+        for (Iterator<arbol.Atributo> it = selectedItem.getAtributos(); it.hasNext(); ++i) {
+            arbol.Atributo a = it.next();
             Atributo pa = new Atributo(a, this);
             c.gridx = 0;
             c.gridy = i;
@@ -273,8 +277,8 @@ public class Editor extends JPanel implements ActionListener {
         c.weighty = 1.0D;
         int i = 0;
 
-        for (Iterator it = selectedItem.getCampos(); it.hasNext(); ++i) {
-            arbol.Campo cmp = (arbol.Campo) it.next();
+        for (Iterator<arbol.Campo> it = selectedItem.getCampos(); it.hasNext(); ++i) {
+            arbol.Campo cmp = it.next();
             Campo pc = new Campo(cmp, this);
             c.gridx = 0;
             c.gridy = i;
@@ -307,8 +311,8 @@ public class Editor extends JPanel implements ActionListener {
         c.weighty = 1.0D;
         int i = 0;
 
-        for (Iterator it = selectedItem.getSiguientes(); it.hasNext(); ++i) {
-            arbol.Siguiente s = (arbol.Siguiente) it.next();
+        for (Iterator<arbol.Siguiente> it = selectedItem.getSiguientes(); it.hasNext(); ++i) {
+            arbol.Siguiente s = it.next();
             Siguiente ps = new Siguiente(s, this);
             c.gridx = 0;
             c.gridy = i;
@@ -334,8 +338,8 @@ public class Editor extends JPanel implements ActionListener {
         c.weighty = 1.0D;
         int i = 0;
 
-        for (Iterator it = selectedItem.getValidaciones(); it.hasNext(); ++i) {
-            arbol.Validacion v = (arbol.Validacion) it.next();
+        for (Iterator<arbol.Validacion> it = selectedItem.getValidaciones(); it.hasNext(); ++i) {
+            arbol.Validacion v = it.next();
             Validacion pv = new Validacion(v, this);
             c.gridx = 0;
             c.gridy = i;
@@ -359,13 +363,10 @@ public class Editor extends JPanel implements ActionListener {
     }
 
     public List<String> getAtributos() {
-        List<String> l = new ArrayList();
-        l.addAll(this.arbol.getAtributos());
-        Iterator it = this.listaAtributos.iterator();
+        List<String> l = new ArrayList<>(this.arbol.getAtributos());
 
-        while (it.hasNext()) {
-            arbol.Atributo a = (arbol.Atributo) it.next();
-            l.add(a.getNombre());
+        for (arbol.Atributo a : this.listaAtributos) {
+            l.add(a.nombre());
         }
 
         Collections.sort(l);
@@ -373,18 +374,14 @@ public class Editor extends JPanel implements ActionListener {
     }
 
     public List<String> getNodos() {
-        List<String> l = new ArrayList();
-        Iterator it = this.arbol.getNodos();
+        List<String> l = new ArrayList<>();
+        Iterator<Nodo> it = this.arbol.getNodos();
 
         while (it.hasNext()) {
-            l.add(((Nodo) it.next()).getTitulo());
+            l.add(it.next().getTitulo());
         }
 
         return l;
-    }
-
-    public JPanel getPanelAtributo() {
-        return this.panelAtributos;
     }
 
     private void inicializaPanelElementos() {
@@ -434,10 +431,10 @@ public class Editor extends JPanel implements ActionListener {
 
     private void recargarListaNodos() {
         this.listaNodos.removeAllItems();
-        Iterator it = this.arbol.getNodos();
+        Iterator<Nodo> it = this.arbol.getNodos();
 
         while (it.hasNext()) {
-            Nodo n = (Nodo) it.next();
+            Nodo n = it.next();
             this.listaNodos.addItem(n);
         }
 
@@ -469,6 +466,7 @@ public class Editor extends JPanel implements ActionListener {
     }
 
     public void repintarElementos() {
-        this.scrollElementos.paintAll(this.scrollElementos.getGraphics());
+        this.scrollElementos.revalidate();
+        this.scrollElementos.repaint();
     }
 }

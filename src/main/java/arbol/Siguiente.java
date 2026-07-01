@@ -1,24 +1,20 @@
 package arbol;
 
-public class Siguiente {
-    private String condicion;
-    private String destino;
+import java.util.Objects;
 
-    public Siguiente(String condicion2, String destino2) {
-        this.condicion = condicion2;
-        this.destino = destino2;
-    }
-
-    public String getCondicion() {
-        return this.condicion;
-    }
-
-    public String getDestino() {
-        return this.destino;
-    }
+public record Siguiente(String condicion, String destino) {
 
     public boolean equals(Object o) {
-        Siguiente s = (Siguiente) o;
-        return this.condicion.equals(s.condicion);
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Siguiente s)) {
+            return false;
+        }
+        return Objects.equals(this.condicion, s.condicion);
+    }
+
+    public int hashCode() {
+        return Objects.hash(this.condicion);
     }
 }
