@@ -6,14 +6,16 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,50 +44,29 @@ public class Proyecto {
 
             for (Element n : nodos) {
                 Nodo nd = new Nodo(this.reconversion(n.getName()), this.arbol);
-                Element atributos = n.getChild("Atributos");
-                Iterator<Element> ita = atributos.getChildren().iterator();
 
-                Element campos;
-                while (ita.hasNext()) {
-                    campos = ita.next();
-                    Atributo atr = new Atributo(this.reconversion(campos.getName()), campos.getAttributeValue("Valor"), campos.getAttributeValue("Descripcion"));
+                for (Element atributoElement : this.getChildren(n, "Atributos")) {
+                    Atributo atr = new Atributo(this.reconversion(atributoElement.getName()), this.getAttribute(atributoElement, "Valor"), this.getAttribute(atributoElement, "Descripcion"));
                     nd.addAtributos(atr);
                     this.arbol.addAtributo(atr);
                 }
 
-                campos = n.getChild("Campos");
-                Iterator<Element> itc = campos.getChildren().iterator();
-
-                Element validaciones;
-                while (itc.hasNext()) {
-                    validaciones = itc.next();
-                    Campo cmp = new Campo(this.reconversion(validaciones.getName()), validaciones.getAttributeValue("Tipo"), validaciones.getAttributeValue("Etiqueta"), validaciones.getAttributeValue("Valor"), validaciones.getAttributeValue("Enlace"));
+                for (Element campoElement : this.getChildren(n, "Campos")) {
+                    Campo cmp = new Campo(this.reconversion(campoElement.getName()), this.getAttribute(campoElement, "Tipo"), this.getAttribute(campoElement, "Etiqueta"), this.getAttribute(campoElement, "Valor"), this.getAttribute(campoElement, "Enlace"));
                     nd.addCampo(cmp);
                 }
 
-                validaciones = n.getChild("Validaciones");
-                Iterator<Element> itv = validaciones.getChildren().iterator();
-
-                Element siguientes;
-                while (itv.hasNext()) {
-                    siguientes = itv.next();
-                    Validacion val = new Validacion(siguientes.getAttributeValue("Condicion"), siguientes.getAttributeValue("Mensaje"));
+                for (Element validacionElement : this.getChildren(n, "Validaciones")) {
+                    Validacion val = new Validacion(this.getAttribute(validacionElement, "Condicion"), this.getAttribute(validacionElement, "Mensaje"));
                     nd.addValidacion(val);
                 }
 
-                siguientes = n.getChild("Siguientes");
-                Iterator<Element> its = siguientes.getChildren().iterator();
-
-                Element hijos;
-                while (its.hasNext()) {
-                    hijos = its.next();
-                    Siguiente sgt = new Siguiente(hijos.getAttributeValue("Condicion"), hijos.getAttributeValue("Destino"));
+                for (Element siguienteElement : this.getChildren(n, "Siguientes")) {
+                    Siguiente sgt = new Siguiente(this.getAttribute(siguienteElement, "Condicion"), this.getAttribute(siguienteElement, "Destino"));
                     nd.addSiguiente(sgt);
                 }
 
-                hijos = n.getChild("Hijos");
-
-                for (Element h : hijos.getChildren()) {
+                for (Element h : this.getChildren(n, "Hijos")) {
                     Nodo hijo = new Nodo(this.reconversion(h.getName()), this.arbol);
                     if (this.arbol.contiene(hijo)) {
                         nd.addHijo(this.arbol.getNodo(this.reconversion(h.getName())));
@@ -97,9 +78,23 @@ public class Proyecto {
                 this.arbol.addNodo(nd);
             }
         } catch (JDOMException | IOException var21) {
-            var21.printStackTrace();
+            this.arbol = null;
+            JOptionPane.showMessageDialog(null, "No se pudo abrir el proyecto '" + selectedValue + "'.\nRevise que el archivo PDS exista y tenga un formato XML valido.", "Abrir proyecto", JOptionPane.ERROR_MESSAGE);
         }
 
+    }
+
+    private List<Element> getChildren(Element parent, String childName) {
+        Element child = parent.getChild(childName);
+        if (child == null) {
+            return Collections.emptyList();
+        }
+        return child.getChildren();
+    }
+
+    private String getAttribute(Element element, String attributeName) {
+        String value = element.getAttributeValue(attributeName);
+        return value == null ? "" : value;
     }
 
     private String reconversion(String name) {
@@ -133,8 +128,9 @@ public class Proyecto {
         JButton guardar = new JButton("Guardar");
         guardar.addActionListener(e -> {
             Proyecto.this.cerrarDialogo();
-            Proyecto.this.salvarProyecto();
-            ventana.dispose();
+            if (Proyecto.this.salvarProyecto()) {
+                ventana.dispose();
+            }
         });
         c.gridx = 0;
         c.gridy = 1;
@@ -159,7 +155,7 @@ public class Proyecto {
         this.d.setVisible(true);
     }
 
-    protected void salvarProyecto() {
+    protected boolean salvarProyecto() {
         Document doc = new Document();
         Element root = new Element(this.conversion(this.arbol.getNombre()));
         doc.setRootElement(root);
@@ -170,13 +166,14 @@ public class Proyecto {
             this.escribirNodo(root, n);
         }
 
-        XMLOutputter out = new XMLOutputter();
+        XMLOutputter out = new XMLOutputter(Format.getPrettyFormat().setEncoding("UTF-8"));
 
-        try {
-            FileOutputStream file = new FileOutputStream(this.arbol.getNombre() + ".pds");
-            out.output((Document) doc, (OutputStream) file);
+        try (OutputStream file = Files.newOutputStream(new File(this.arbol.getNombre() + ".pds").toPath())) {
+            out.output(doc, file);
+            return true;
         } catch (IOException var8) {
-            var8.printStackTrace();
+            JOptionPane.showMessageDialog(null, "No se pudo guardar el proyecto '" + this.arbol.getNombre() + "'.", "Guardar proyecto", JOptionPane.ERROR_MESSAGE);
+            return false;
         }
 
     }
@@ -273,8 +270,9 @@ public class Proyecto {
     }
 
     public void guardar() {
-        this.salvarProyecto();
-        this.saved = true;
+        if (this.salvarProyecto()) {
+            this.saved = true;
+        }
     }
 
     public boolean vacio() {

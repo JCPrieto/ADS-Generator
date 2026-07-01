@@ -1,77 +1,83 @@
 package gui;
 
 import arbol.Arbol;
+import arbol.Atributo;
+import arbol.Campo;
 import arbol.Nodo;
 import auxiliar.ADSFilter;
 
 import javax.swing.*;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class FileGenerator {
-    private FileWriter out;
-    private File file;
-    private Ventana contenedor;
-    private List<Nodo> agregados;
+    private final Ventana contenedor;
+    private final List<Nodo> agregados;
+    private Writer out;
 
     public FileGenerator(Ventana ventana) {
         this.contenedor = ventana;
-        this.agregados = new ArrayList();
+        this.agregados = new ArrayList<>();
     }
 
     public void generar(Arbol arbol) {
         JFileChooser fc = new JFileChooser();
         fc.setFileFilter(new ADSFilter());
         int c = fc.showSaveDialog(this.contenedor);
-        if (c == 0) {
-            this.file = fc.getSelectedFile();
+        if (c != JFileChooser.APPROVE_OPTION) {
+            return;
         }
 
+        File file = fc.getSelectedFile();
         File outputFile;
-        if (!this.file.getName().endsWith(".ads")) {
-            outputFile = new File(this.file.getAbsolutePath() + ".ads");
+        if (!file.getName().endsWith(".ads")) {
+            outputFile = new File(file.getAbsolutePath() + ".ads");
         } else {
-            outputFile = new File(this.file.getAbsolutePath());
+            outputFile = new File(file.getAbsolutePath());
         }
 
-        try {
-            this.out = new FileWriter(outputFile);
+        this.agregados.clear();
+        try (Writer writer = Files.newBufferedWriter(outputFile.toPath(), StandardCharsets.UTF_8)) {
+            this.out = writer;
             this.out.write("Arbol {\n\n");
             Nodo raiz = arbol.getRaiz();
             this.out.write("\ttitulo \"" + arbol.getNombre() + "\"\n\n");
             this.agregados.add(raiz);
             this.escribirNodo(raiz);
             this.out.write("\n}");
-            this.out.close();
         } catch (IOException var6) {
-            var6.printStackTrace();
+            JOptionPane.showMessageDialog(this.contenedor, "No se pudo generar el archivo ADS.", "Generar archivo", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            this.out = null;
         }
 
     }
 
     private void escribirNodo(Nodo raiz) throws IOException {
         this.out.write("\tnodo " + raiz.getTitulo() + "{\n\n");
-        Iterator it = raiz.getAtributos();
+        Iterator<Atributo> it = raiz.getAtributos();
 
         while (it.hasNext()) {
-            arbol.Atributo a = (arbol.Atributo) it.next();
+            arbol.Atributo a = it.next();
             this.escribirAtributo(a);
         }
 
         this.out.write("\n");
-        Iterator it2 = raiz.getCampos();
+        Iterator<Campo> it2 = raiz.getCampos();
 
         while (it2.hasNext()) {
-            arbol.Campo c = (arbol.Campo) it2.next();
+            arbol.Campo c = it2.next();
             this.escribirCampo(c);
         }
 
         this.out.write("\n\n");
-        Iterator it4;
+        Iterator<?> it4;
         if (raiz.getNumValidaciones() != 0) {
             this.out.write("\t\tvalidacion {\n");
             it4 = raiz.getValidaciones();
@@ -94,10 +100,8 @@ public class FileGenerator {
             }
 
             this.out.write("\t\t}\n\n\t}\n\n");
-            Iterator it5 = raiz.getHijos().iterator();
 
-            while (it5.hasNext()) {
-                Nodo n = (Nodo) it5.next();
+            for (Nodo n : raiz.getHijos()) {
                 if (!this.escrito(n)) {
                     this.agregados.add(n);
                     this.escribirNodo(n);
@@ -114,7 +118,7 @@ public class FileGenerator {
         boolean enc = false;
 
         while (it.hasNext() && !enc) {
-            Nodo n2 = (Nodo) it.next();
+            Nodo n2 = it.next();
             if (n.getTitulo().equals(n2.getTitulo())) {
                 enc = true;
             }
@@ -162,16 +166,16 @@ public class FileGenerator {
     private String opciones(String valor) {
         String s = valor.replace("\n", "");
         String[] s1 = s.split(",");
-        String f = "";
+        StringBuilder f = new StringBuilder();
 
         for (int i = 0; i < s1.length; ++i) {
-            f = f + "\"" + s1[i] + "\"";
+            f.append("\"").append(s1[i]).append("\"");
             if (i != s1.length - 1) {
-                f = f + ",";
+                f.append(",");
             }
         }
 
-        return f;
+        return f.toString();
     }
 
     private void escribirAtributo(arbol.Atributo a) throws IOException {

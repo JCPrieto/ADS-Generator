@@ -179,8 +179,13 @@ public class Ventana extends JFrame implements ActionListener, WindowListener {
     }
 
     public void abrirProyecto(String selectedValue) {
-        this.p = new Proyecto(selectedValue);
-        this.arbol = this.p.getArbol();
+        Proyecto proyecto = new Proyecto(selectedValue);
+        Arbol arbolCargado = proyecto.getArbol();
+        if (arbolCargado == null) {
+            return;
+        }
+        this.p = proyecto;
+        this.arbol = arbolCargado;
         this.panelGrafo.crearArbol(this.arbol);
         this.panelEditor.crearArbol(this.arbol);
     }
