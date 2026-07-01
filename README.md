@@ -1,5 +1,7 @@
 # ADS Generator
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=JCPrieto_ADS-Generator&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=JCPrieto_ADS-Generator)
+
 Asistente para crear guias ADS libres de errores y ayudar al CAU en la resolucion de incidencias. Automatiza la
 generacion de guias para el interprete ADS, reduciendo errores manuales.
 
