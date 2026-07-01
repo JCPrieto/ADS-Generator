@@ -1,5 +1,7 @@
 package arbol;
 
+import auxiliar.NormalizadorNombres;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -14,7 +16,7 @@ public class Nodo {
     private List<Siguiente> siguientes;
 
     public Nodo(String string, Arbol arbol) {
-        this.titulo = string.replace(" ", "_");
+        this.titulo = NormalizadorNombres.paraIdentificador(string);
         this.hijos = new ArrayList<>();
         this.campos = new ArrayList<>();
         this.atributos = new ArrayList<>();

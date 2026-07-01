@@ -1,6 +1,7 @@
 package data;
 
 import arbol.*;
+import auxiliar.NormalizadorNombres;
 import gui.Ventana;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -39,20 +40,20 @@ public class Proyecto {
         try {
             Document doc = b.build(new File(selectedValue + ".pds"));
             Element root = doc.getRootElement();
-            this.arbol = new Arbol(this.reconversion(root.getName()));
+            this.arbol = new Arbol(NormalizadorNombres.desdeElementoXml(root.getName()));
             List<Element> nodos = root.getChildren();
 
             for (Element n : nodos) {
-                Nodo nd = new Nodo(this.reconversion(n.getName()), this.arbol);
+                Nodo nd = new Nodo(NormalizadorNombres.desdeElementoXml(n.getName()), this.arbol);
 
                 for (Element atributoElement : this.getChildren(n, "Atributos")) {
-                    Atributo atr = new Atributo(this.reconversion(atributoElement.getName()), this.getAttribute(atributoElement, "Valor"), this.getAttribute(atributoElement, "Descripcion"));
+                    Atributo atr = new Atributo(NormalizadorNombres.desdeElementoXml(atributoElement.getName()), this.getAttribute(atributoElement, "Valor"), this.getAttribute(atributoElement, "Descripcion"));
                     nd.addAtributos(atr);
                     this.arbol.addAtributo(atr);
                 }
 
                 for (Element campoElement : this.getChildren(n, "Campos")) {
-                    Campo cmp = new Campo(this.reconversion(campoElement.getName()), this.getAttribute(campoElement, "Tipo"), this.getAttribute(campoElement, "Etiqueta"), this.getAttribute(campoElement, "Valor"), this.getAttribute(campoElement, "Enlace"));
+                    Campo cmp = new Campo(NormalizadorNombres.desdeElementoXml(campoElement.getName()), this.getAttribute(campoElement, "Tipo"), this.getAttribute(campoElement, "Etiqueta"), this.getAttribute(campoElement, "Valor"), this.getAttribute(campoElement, "Enlace"));
                     nd.addCampo(cmp);
                 }
 
@@ -67,9 +68,10 @@ public class Proyecto {
                 }
 
                 for (Element h : this.getChildren(n, "Hijos")) {
-                    Nodo hijo = new Nodo(this.reconversion(h.getName()), this.arbol);
+                    String nombreHijo = NormalizadorNombres.desdeElementoXml(h.getName());
+                    Nodo hijo = new Nodo(nombreHijo, this.arbol);
                     if (this.arbol.contiene(hijo)) {
-                        nd.addHijo(this.arbol.getNodo(this.reconversion(h.getName())));
+                        nd.addHijo(this.arbol.getNodo(nombreHijo));
                     } else {
                         nd.addHijo(hijo);
                     }
@@ -95,17 +97,6 @@ public class Proyecto {
     private String getAttribute(Element element, String attributeName) {
         String value = element.getAttributeValue(attributeName);
         return value == null ? "" : value;
-    }
-
-    private String reconversion(String name) {
-        String s;
-        if (name.startsWith("_")) {
-            s = name.substring(1);
-        } else {
-            s = name;
-        }
-
-        return s.replace("_", " ");
     }
 
     public boolean getSaved() {
@@ -157,7 +148,7 @@ public class Proyecto {
 
     protected boolean salvarProyecto() {
         Document doc = new Document();
-        Element root = new Element(this.conversion(this.arbol.getNombre()));
+        Element root = new Element(NormalizadorNombres.paraElementoXml(this.arbol.getNombre()));
         doc.setRootElement(root);
         Iterator<Nodo> it = this.arbol.getNodos();
 
@@ -179,13 +170,13 @@ public class Proyecto {
     }
 
     private void escribirNodo(Element root, Nodo raiz) {
-        Element nodo = new Element(this.conversion(raiz.getTitulo()));
+        Element nodo = new Element(NormalizadorNombres.paraElementoXml(raiz.getTitulo()));
         Element atributos = new Element("Atributos");
         Iterator<Atributo> ita = raiz.getAtributos();
 
         while (ita.hasNext()) {
             Atributo a = ita.next();
-            Element atributo = new Element(this.conversion(a.nombre()));
+            Element atributo = new Element(NormalizadorNombres.paraElementoXml(a.nombre()));
             atributo.setAttribute("Valor", a.valor());
             atributo.setAttribute("Descripcion", a.descripcion());
             atributos.addContent(atributo);
@@ -197,7 +188,7 @@ public class Proyecto {
 
         while (itc.hasNext()) {
             Campo c = itc.next();
-            Element campo = new Element(this.conversion(c.nombre()));
+            Element campo = new Element(NormalizadorNombres.paraElementoXml(c.nombre()));
             campo.setAttribute("Tipo", c.tipo());
             campo.setAttribute("Etiqueta", c.etiqueta());
             campo.setAttribute("Valor", c.valor());
@@ -234,22 +225,11 @@ public class Proyecto {
         Element hijos = new Element("Hijos");
 
         for (Nodo h : raiz.getHijos()) {
-            hijos.addContent(new Element(this.conversion(h.getTitulo())));
+            hijos.addContent(new Element(NormalizadorNombres.paraElementoXml(h.getTitulo())));
         }
 
         nodo.addContent(hijos);
         root.addContent(nodo);
-    }
-
-    private String conversion(String titulo) {
-        String s;
-        if (!titulo.startsWith("0") && !titulo.startsWith("1") && !titulo.startsWith("2") && !titulo.startsWith("3") && !titulo.startsWith("4") && !titulo.startsWith("5") && !titulo.startsWith("6") && !titulo.startsWith("7") && !titulo.startsWith("8") && !titulo.startsWith("9")) {
-            s = titulo;
-        } else {
-            s = "_" + titulo;
-        }
-
-        return s.replace(" ", "_");
     }
 
     protected void cerrarDialogo() {

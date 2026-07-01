@@ -5,6 +5,7 @@ import arbol.Atributo;
 import arbol.Campo;
 import arbol.Nodo;
 import auxiliar.ADSFilter;
+import auxiliar.NormalizadorNombres;
 
 import javax.swing.*;
 import java.io.File;
@@ -129,9 +130,9 @@ public class FileGenerator {
 
     private void escribirSiguientes(arbol.Siguiente s) throws IOException {
         if (!s.condicion().isEmpty()) {
-            this.out.write("\t\t\tsi " + s.condicion() + " entonces " + this.conversion(s.destino()) + "\n");
+            this.out.write("\t\t\tsi " + s.condicion() + " entonces " + NormalizadorNombres.paraIdentificador(s.destino()) + "\n");
         } else {
-            this.out.write("\t\t\tentonces " + this.conversion(s.destino()) + "\n");
+            this.out.write("\t\t\tentonces " + NormalizadorNombres.paraIdentificador(s.destino()) + "\n");
         }
 
     }
@@ -141,7 +142,7 @@ public class FileGenerator {
     }
 
     private void escribirCampo(arbol.Campo c) throws IOException {
-        this.out.write("\t\tcampo " + this.conversion(c.nombre()) + "\n\t\t\ttipo " + c.tipo().toLowerCase() + "\n\t\t\tetiqueta \"" + c.etiqueta() + "\"");
+        this.out.write("\t\tcampo " + NormalizadorNombres.paraIdentificador(c.nombre()) + "\n\t\t\ttipo " + c.tipo().toLowerCase() + "\n\t\t\tetiqueta \"" + c.etiqueta() + "\"");
         if (c.tipo().equals("radio")) {
             this.out.write("\n\t\t\topciones [" + this.opciones(c.valor()) + "]");
         } else if (!c.tipo().equals("desplegable") && !c.tipo().equals("lista")) {
@@ -190,9 +191,5 @@ public class FileGenerator {
             this.out.write("\n\t\t\tvalor \"" + a.valor() + "\"\n");
         }
 
-    }
-
-    private String conversion(String nombre) {
-        return nombre.replace(" ", "_");
     }
 }
