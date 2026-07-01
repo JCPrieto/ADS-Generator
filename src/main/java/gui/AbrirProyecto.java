@@ -2,18 +2,21 @@ package gui;
 
 import auxiliar.NoHayFicherosException;
 import auxiliar.PDSFilter;
+import auxiliar.UtilidadesFichero;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.Serial;
 
 public class AbrirProyecto extends JDialog implements ActionListener {
+    @Serial
     private static final long serialVersionUID = 1L;
     private JButton botonCancelar;
     private JButton botonOk;
-    private Ventana contenedor;
+    private final Ventana contenedor;
     private JList<Object> l;
 
     public AbrirProyecto(Ventana ventana) {
@@ -27,7 +30,7 @@ public class AbrirProyecto extends JDialog implements ActionListener {
         super.setLayout(grid);
 
         try {
-            this.l = new JList(this.obtenerProyectos());
+            this.l = new JList<>(this.obtenerProyectos());
             c.gridx = 0;
             c.gridy = 0;
             c.gridwidth = 2;
@@ -89,7 +92,8 @@ public class AbrirProyecto extends JDialog implements ActionListener {
     }
 
     private String[] obtenerProyectos() throws NoHayFicherosException {
-        File dir = new File(".");
+        UtilidadesFichero.createProjectsFolder();
+        File dir = UtilidadesFichero.getProjectsDir().toFile();
         String[] ficheros = dir.list(new PDSFilter());
         if (ficheros != null && ficheros.length != 0) {
             return this.getNombres(ficheros);

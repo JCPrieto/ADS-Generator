@@ -2,6 +2,7 @@ package data;
 
 import arbol.*;
 import auxiliar.NormalizadorNombres;
+import auxiliar.UtilidadesFichero;
 import gui.Ventana;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -12,10 +13,10 @@ import org.jdom2.output.XMLOutputter;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -34,56 +35,8 @@ public class Proyecto {
         this.crearArbol(selectedValue);
     }
 
-    private void crearArbol(String selectedValue) {
-        SAXBuilder b = new SAXBuilder();
-
-        try {
-            Document doc = b.build(new File(selectedValue + ".pds"));
-            Element root = doc.getRootElement();
-            this.arbol = new Arbol(NormalizadorNombres.desdeElementoXml(root.getName()));
-            List<Element> nodos = root.getChildren();
-
-            for (Element n : nodos) {
-                Nodo nd = new Nodo(NormalizadorNombres.desdeElementoXml(n.getName()), this.arbol);
-
-                for (Element atributoElement : this.getChildren(n, "Atributos")) {
-                    Atributo atr = new Atributo(NormalizadorNombres.desdeElementoXml(atributoElement.getName()), this.getAttribute(atributoElement, "Valor"), this.getAttribute(atributoElement, "Descripcion"));
-                    nd.addAtributos(atr);
-                    this.arbol.addAtributo(atr);
-                }
-
-                for (Element campoElement : this.getChildren(n, "Campos")) {
-                    Campo cmp = new Campo(NormalizadorNombres.desdeElementoXml(campoElement.getName()), this.getAttribute(campoElement, "Tipo"), this.getAttribute(campoElement, "Etiqueta"), this.getAttribute(campoElement, "Valor"), this.getAttribute(campoElement, "Enlace"));
-                    nd.addCampo(cmp);
-                }
-
-                for (Element validacionElement : this.getChildren(n, "Validaciones")) {
-                    Validacion val = new Validacion(this.getAttribute(validacionElement, "Condicion"), this.getAttribute(validacionElement, "Mensaje"));
-                    nd.addValidacion(val);
-                }
-
-                for (Element siguienteElement : this.getChildren(n, "Siguientes")) {
-                    Siguiente sgt = new Siguiente(this.getAttribute(siguienteElement, "Condicion"), this.getAttribute(siguienteElement, "Destino"));
-                    nd.addSiguiente(sgt);
-                }
-
-                for (Element h : this.getChildren(n, "Hijos")) {
-                    String nombreHijo = NormalizadorNombres.desdeElementoXml(h.getName());
-                    Nodo hijo = new Nodo(nombreHijo, this.arbol);
-                    if (this.arbol.contiene(hijo)) {
-                        nd.addHijo(this.arbol.getNodo(nombreHijo));
-                    } else {
-                        nd.addHijo(hijo);
-                    }
-                }
-
-                this.arbol.addNodo(nd);
-            }
-        } catch (JDOMException | IOException var21) {
-            this.arbol = null;
-            JOptionPane.showMessageDialog(null, "No se pudo abrir el proyecto '" + selectedValue + "'.\nRevise que el archivo PDS exista y tenga un formato XML valido.", "Abrir proyecto", JOptionPane.ERROR_MESSAGE);
-        }
-
+    private static Path getProjectPath(String projectName) {
+        return UtilidadesFichero.getProjectsDir().resolve(projectName + ".pds");
     }
 
     private List<Element> getChildren(Element parent, String childName) {
@@ -146,6 +99,59 @@ public class Proyecto {
         this.d.setVisible(true);
     }
 
+    private void crearArbol(String selectedValue) {
+        SAXBuilder b = new SAXBuilder();
+
+        try {
+            Document doc = b.build(getProjectPath(selectedValue).toFile());
+            Element root = doc.getRootElement();
+            this.arbol = new Arbol(NormalizadorNombres.desdeElementoXml(root.getName()));
+            List<Element> nodos = root.getChildren();
+
+            for (Element n : nodos) {
+                Nodo nd = new Nodo(NormalizadorNombres.desdeElementoXml(n.getName()), this.arbol);
+
+                for (Element atributoElement : this.getChildren(n, "Atributos")) {
+                    Atributo atr = new Atributo(NormalizadorNombres.desdeElementoXml(atributoElement.getName()), this.getAttribute(atributoElement, "Valor"), this.getAttribute(atributoElement, "Descripcion"));
+                    nd.addAtributos(atr);
+                    this.arbol.addAtributo(atr);
+                }
+
+                for (Element campoElement : this.getChildren(n, "Campos")) {
+                    Campo cmp = new Campo(NormalizadorNombres.desdeElementoXml(campoElement.getName()), this.getAttribute(campoElement, "Tipo"), this.getAttribute(campoElement, "Etiqueta"), this.getAttribute(campoElement, "Valor"), this.getAttribute(campoElement, "Enlace"));
+                    nd.addCampo(cmp);
+                }
+
+                for (Element validacionElement : this.getChildren(n, "Validaciones")) {
+                    Validacion val = new Validacion(this.getAttribute(validacionElement, "Condicion"), this.getAttribute(validacionElement, "Mensaje"));
+                    nd.addValidacion(val);
+                }
+
+                for (Element siguienteElement : this.getChildren(n, "Siguientes")) {
+                    Siguiente sgt = new Siguiente(this.getAttribute(siguienteElement, "Condicion"), this.getAttribute(siguienteElement, "Destino"));
+                    nd.addSiguiente(sgt);
+                }
+
+                for (Element h : this.getChildren(n, "Hijos")) {
+                    String nombreHijo = NormalizadorNombres.desdeElementoXml(h.getName());
+                    Nodo hijo = new Nodo(nombreHijo, this.arbol);
+                    if (this.arbol.contiene(hijo)) {
+                        nd.addHijo(this.arbol.getNodo(nombreHijo));
+                    } else {
+                        nd.addHijo(hijo);
+                    }
+                }
+
+                this.arbol.addNodo(nd);
+            }
+            this.saved = true;
+        } catch (JDOMException | IOException var21) {
+            this.arbol = null;
+            JOptionPane.showMessageDialog(null, "No se pudo abrir el proyecto '" + selectedValue + "'.\nRevise que el archivo PDS exista y tenga un formato XML valido.", "Abrir proyecto", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+
     protected boolean salvarProyecto() {
         Document doc = new Document();
         Element root = new Element(NormalizadorNombres.paraElementoXml(this.arbol.getNombre()));
@@ -159,7 +165,8 @@ public class Proyecto {
 
         XMLOutputter out = new XMLOutputter(Format.getPrettyFormat().setEncoding("UTF-8"));
 
-        try (OutputStream file = Files.newOutputStream(new File(this.arbol.getNombre() + ".pds").toPath())) {
+        UtilidadesFichero.createProjectsFolder();
+        try (OutputStream file = Files.newOutputStream(getProjectPath(this.arbol.getNombre()))) {
             out.output(doc, file);
             return true;
         } catch (IOException var8) {
