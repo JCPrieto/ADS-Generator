@@ -1,6 +1,7 @@
 package gui;
 
 import arbol.Arbol;
+import auxiliar.IconUtils;
 import auxiliar.Logger;
 import auxiliar.UtilidadesGitHub;
 import auxiliar.VersionApp;
@@ -16,7 +17,8 @@ import java.io.Serial;
 public class Ventana extends JFrame implements ActionListener, WindowListener {
     @Serial
     private static final long serialVersionUID = 2L;
-    private static final String ICONO_RECURSO = "/img/icons/ADS2.png";
+    private static final String ICONO_RECURSO = "ADS2.png";
+    private static final String INFO_ICONO_RECURSO = "info.png";
     private JMenuBar barraMenu;
     private JMenuItem menuNuevo;
     private JMenuItem menuAbrir;
@@ -30,10 +32,7 @@ public class Ventana extends JFrame implements ActionListener, WindowListener {
 
     public Ventana() {
         super("ADS Generator " + VersionApp.getVersion());
-        java.net.URL iconUrl = Ventana.class.getResource(ICONO_RECURSO);
-        if (iconUrl != null) {
-            super.setIconImage((new ImageIcon(iconUrl)).getImage());
-        }
+        cargarIconoAplicacion();
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -58,6 +57,13 @@ public class Ventana extends JFrame implements ActionListener, WindowListener {
         this.comprobarNuevaVersion(this.barraMenu);
     }
 
+    private void cargarIconoAplicacion() {
+        java.util.List<java.awt.Image> iconos = IconUtils.loadWindowIcons(ICONO_RECURSO);
+        if (!iconos.isEmpty()) {
+            super.setIconImages(iconos);
+        }
+    }
+
     private void cargarBarraMenu() {
         this.barraMenu = new JMenuBar();
         JMenu menuArchivo = new JMenu("Archivo");
@@ -74,7 +80,7 @@ public class Ventana extends JFrame implements ActionListener, WindowListener {
         menuArchivo.add(this.menuGuardar);
         menuArchivo.add(this.menuSalir);
         JMenu menuAyuda = new JMenu("Ayuda");
-        this.menuACercaDe = new JMenuItem("Acerca de...", new ImageIcon(getClass().getResource("/img/icons/info.png")));
+        this.menuACercaDe = new JMenuItem("Acerca de...", IconUtils.loadIcon(INFO_ICONO_RECURSO));
         this.menuACercaDe.addActionListener(this);
         menuAyuda.add(this.menuACercaDe);
         this.barraMenu.add(menuArchivo);

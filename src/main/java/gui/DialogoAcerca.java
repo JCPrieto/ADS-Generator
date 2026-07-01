@@ -1,19 +1,19 @@
 package gui;
 
+import auxiliar.IconUtils;
 import auxiliar.UrlMouseListener;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.Serial;
-import java.net.URL;
 
 public class DialogoAcerca extends JDialog {
     @Serial
     private static final long serialVersionUID = 2L;
     private static final String APP_NAME = "ADS Generator";
-    private static final String APP_ICON = "/img/icons/ADS2.png";
-    private static final String GPL_ICON = "/img/icons/gplv3-with-text-136x68.png";
+    private static final String APP_ICON = "ADS2.png";
+    private static final String GPL_ICON = "gplv3-with-text-136x68.png";
     private static final String AUTHOR_WEB = "https://www.jcprieto.es";
     private static final String AUTHOR_EMAIL = "JuanC.Prieto.Silos@gmail.com";
     private static final String GPL_URL = "https://www.gnu.org/licenses/gpl-3.0.html";
@@ -34,23 +34,6 @@ public class DialogoAcerca extends JDialog {
         label.addMouseListener(new UrlMouseListener(label, url));
     }
 
-    private static ImageIcon cargarIcono(String recurso) {
-        URL url = DialogoAcerca.class.getResource(recurso);
-        if (url == null) {
-            return null;
-        }
-        return new ImageIcon(url);
-    }
-
-    private static ImageIcon cargarIcono() {
-        ImageIcon icono = cargarIcono(DialogoAcerca.APP_ICON);
-        if (icono == null) {
-            return null;
-        }
-        Image imagen = icono.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
-        return new ImageIcon(imagen);
-    }
-
     private void cargarPantalla(Ventana ventana) {
         JPanel panel = new JPanel();
         int yPosition = 0;
@@ -59,7 +42,7 @@ public class DialogoAcerca extends JDialog {
         GridBagConstraints cns = new GridBagConstraints();
 
         JLabel titulo = new JLabel("<html><h1>" + APP_NAME + " " + ventana.getVersion() + "</h1></html>",
-                cargarIcono(), SwingConstants.CENTER);
+                IconUtils.loadIconScaled(APP_ICON, 64, 64), SwingConstants.CENTER);
         cns.fill = GridBagConstraints.HORIZONTAL;
         cns.insets = new Insets(10, 10, 10, 10);
         cns.gridx = 0;
@@ -99,7 +82,7 @@ public class DialogoAcerca extends JDialog {
         addPowered(panel, cns, ++yPosition, "Gson", "https://github.com/google/gson");
         addPowered(panel, cns, ++yPosition, "Apache Commons IO", "https://commons.apache.org/proper/commons-io/");
 
-        JLabel licencia = new JLabel("Licencia GNU General Public License v3.0 (GPL-3.0)", cargarIcono(GPL_ICON), SwingConstants.CENTER);
+        JLabel licencia = new JLabel("Licencia GNU General Public License v3.0 (GPL-3.0)", IconUtils.loadIcon(GPL_ICON), SwingConstants.CENTER);
         addUrlMouseListener(licencia, GPL_URL);
         cns.insets = new Insets(10, 10, 10, 10);
         cns.gridx = 0;
