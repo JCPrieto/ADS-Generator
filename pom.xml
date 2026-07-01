@@ -17,6 +17,7 @@
         <app.icon>${project.basedir}/src/main/resources/img/icons/ADS2.png</app.icon>
         <app.icon.win>${project.basedir}/src/main/resources/img/icons/ADS2.ico</app.icon.win>
         <app.icon.mac>${project.build.directory}/jpackage/ADS2.icns</app.icon.mac>
+        <sonar.organization>jcprieto</sonar.organization>
     </properties>
     <dependencies>
         <dependency>
