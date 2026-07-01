@@ -1,6 +1,7 @@
 package gui;
 
 import arbol.Arbol;
+import auxiliar.Logger;
 import auxiliar.UtilidadesGitHub;
 import auxiliar.VersionApp;
 import data.Proyecto;
@@ -38,7 +39,7 @@ public class Ventana extends JFrame implements ActionListener, WindowListener {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
                  UnsupportedLookAndFeelException var2) {
-            var2.printStackTrace();
+            Logger.error("Establecer Look and Feel", var2);
         }
 
         super.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

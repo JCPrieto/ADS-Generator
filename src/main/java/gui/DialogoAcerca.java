@@ -1,5 +1,7 @@
 package gui;
 
+import auxiliar.Logger;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -8,27 +10,26 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
+import java.io.Serial;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 public class DialogoAcerca extends JDialog implements ActionListener, MouseListener {
+    @Serial
     private static final long serialVersionUID = 2L;
-    private JLabel etq1;
-    private JLabel etq2;
-    private JLabel etq3;
-    private JButton botonOk;
-    private JPanel panel;
+    private final JLabel etq3;
+    private final JButton botonOk;
 
     public DialogoAcerca(Ventana ventana) {
         super(ventana);
         super.setIconImage((new ImageIcon(ventana.getIcono())).getImage());
-        this.panel = new JPanel();
-        this.panel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        this.panel.setLayout(new BoxLayout(this.panel, 1));
-        this.etq1 = new JLabel("ADS Generator " + ventana.getVersion());
-        this.etq1.setAlignmentX(0.5F);
-        this.etq2 = new JLabel("Creado por: Juan Carlos Prieto Silos");
-        this.etq2.setAlignmentX(0.5F);
+        JPanel panel = new JPanel();
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JLabel etq1 = new JLabel("ADS Generator " + ventana.getVersion());
+        etq1.setAlignmentX(0.5F);
+        JLabel etq2 = new JLabel("Creado por: Juan Carlos Prieto Silos");
+        etq2.setAlignmentX(0.5F);
         this.etq3 = new JLabel("JuanC.Prieto.Silos@gmail.com");
         this.etq3.setAlignmentX(0.5F);
         this.etq3.setForeground(Color.blue);
@@ -36,14 +37,14 @@ public class DialogoAcerca extends JDialog implements ActionListener, MouseListe
         this.botonOk = new JButton("Aceptar");
         this.botonOk.setAlignmentX(0.5F);
         this.botonOk.addActionListener(this);
-        this.panel.add(this.etq1);
-        this.panel.add(new JLabel(" "));
-        this.panel.add(this.etq2);
-        this.panel.add(new JLabel(" "));
-        this.panel.add(this.etq3);
-        this.panel.add(new JLabel(" "));
-        this.panel.add(this.botonOk);
-        super.add(this.panel);
+        panel.add(etq1);
+        panel.add(new JLabel(" "));
+        panel.add(etq2);
+        panel.add(new JLabel(" "));
+        panel.add(this.etq3);
+        panel.add(new JLabel(" "));
+        panel.add(this.botonOk);
+        super.add(panel);
         super.pack();
     }
 
@@ -58,11 +59,11 @@ public class DialogoAcerca extends JDialog implements ActionListener, MouseListe
     }
 
     public void mouseEntered(MouseEvent e) {
-        this.setCursor(new Cursor(12));
+        this.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     public void mouseExited(MouseEvent e) {
-        this.setCursor(new Cursor(0));
+        this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     }
 
     public void mousePressed(MouseEvent e) {
@@ -70,9 +71,9 @@ public class DialogoAcerca extends JDialog implements ActionListener, MouseListe
             Desktop.getDesktop().browse(new URI("mailto:juanc.prieto.ext@juntadeandalucia.es?subject=ADS_Generator"));
             this.etq3.setForeground(Color.red);
         } catch (IOException var3) {
-            var3.printStackTrace();
+            Logger.error("Abrir cliente de correo", var3);
         } catch (URISyntaxException var4) {
-            var4.printStackTrace();
+            Logger.error("Crear URI de correo", var4);
         }
 
     }
