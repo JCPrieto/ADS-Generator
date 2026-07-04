@@ -17,6 +17,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public final class UtilidadesGitHub {
     private static final String REPO_OWNER = "JCPrieto";
@@ -197,7 +199,7 @@ public final class UtilidadesGitHub {
             String assetName = getAssetNameForOs(version, os);
             String downloadUrl = getAssetUrl(assets, assetName);
             if (downloadUrl == null) {
-                assetName = getFirstZipName(assets);
+                assetName = getFallbackAssetName(assets, os);
                 downloadUrl = getAssetUrl(assets, assetName);
             }
             return new ReleaseInfo(version, assetName, downloadUrl);
@@ -208,17 +210,34 @@ public final class UtilidadesGitHub {
         if (version == null || os == null) {
             return null;
         }
+        if ("linux".equals(os)) {
+            String linuxSuffix = detectarSufijoUbuntu();
+            if (linuxSuffix != null) {
+                return "ads-generator-" + version + "-linux-" + linuxSuffix + ".deb";
+            }
+            return "ads-generator-" + version + "-linux.deb";
+        }
         return "ads-generator-" + version + "-" + os + ".zip";
     }
 
-    private static String getFirstZipName(JsonArray assets) {
+    private static String getFallbackAssetName(JsonArray assets, String os) {
         if (assets == null) {
             return null;
         }
+        if ("linux".equals(os)) {
+            String debName = getFirstAssetWithExtension(assets, ".deb");
+            if (debName != null) {
+                return debName;
+            }
+        }
+        return getFirstAssetWithExtension(assets, ".zip");
+    }
+
+    private static String getFirstAssetWithExtension(JsonArray assets, String extension) {
         for (int i = 0; i < assets.size(); i++) {
             JsonObject asset = assets.get(i).getAsJsonObject();
             String name = getString(asset, "name");
-            if (name != null && name.endsWith(".zip")) {
+            if (name != null && name.endsWith(extension)) {
                 return name;
             }
         }
@@ -265,6 +284,44 @@ public final class UtilidadesGitHub {
             return "mac";
         }
         return "linux";
+    }
+
+    private static String detectarSufijoUbuntu() {
+        Path osRelease = Path.of("/etc/os-release");
+        if (!Files.isReadable(osRelease)) {
+            return null;
+        }
+        try {
+            String id = null;
+            String versionId = null;
+            for (String line : Files.readAllLines(osRelease, StandardCharsets.UTF_8)) {
+                if (line.startsWith("ID=")) {
+                    id = limpiarValorOsRelease(line.substring("ID=".length()));
+                } else if (line.startsWith("VERSION_ID=")) {
+                    versionId = limpiarValorOsRelease(line.substring("VERSION_ID=".length()));
+                }
+            }
+            if (!"ubuntu".equals(id) || versionId == null) {
+                return null;
+            }
+            if (versionId.startsWith("22.04")) {
+                return "ubuntu22.04";
+            }
+            if (versionId.startsWith("24.04")) {
+                return "ubuntu24.04";
+            }
+        } catch (IOException e) {
+            return null;
+        }
+        return null;
+    }
+
+    private static String limpiarValorOsRelease(String value) {
+        String trimmed = value == null ? "" : value.trim();
+        if (trimmed.length() >= 2 && trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
+            return trimmed.substring(1, trimmed.length() - 1);
+        }
+        return trimmed;
     }
 
     private record ReleaseInfo(String version, String assetName, String downloadUrl) {

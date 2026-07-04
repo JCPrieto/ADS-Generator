@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+  remove|purge)
+    rm -f /usr/bin/ads-generator || true
+    rm -f /usr/share/applications/es-jcprieto-ADSGenerator.desktop || true
+    rm -f /usr/share/icons/hicolor/128x128/apps/es-jcprieto-ADSGenerator.png || true
+    command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database -q || true
+    command -v gtk-update-icon-cache >/dev/null 2>&1 && gtk-update-icon-cache -q /usr/share/icons/hicolor || true
+  ;;
+esac
+
+exit 0

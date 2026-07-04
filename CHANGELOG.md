@@ -2,9 +2,13 @@
 
 Todos los cambios notables de este proyecto se documentaran en este archivo.
 
-## Unreleased
+## 1.2.0
 
-- Pendiente de cambios.
+- Se anaden paquetes `.deb` para Ubuntu con entrada de escritorio e icono instalados para GNOME.
+- Se publica automaticamente el `.deb` de Ubuntu 22.04 en el repositorio APT configurado por la release.
+- Se generan paquetes Linux diferenciados para Ubuntu 22.04 y Ubuntu 24.04.
+- Se mejora la identidad de la aplicacion en Linux para que GNOME asocie correctamente la ventana con su icono.
+- La descarga de actualizaciones en Linux prioriza el paquete `.deb` compatible con la version de Ubuntu detectada.
 
 ## 1.1.0
 

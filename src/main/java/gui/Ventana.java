@@ -8,6 +8,7 @@ import auxiliar.VersionApp;
 import data.Proyecto;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -58,9 +59,23 @@ public class Ventana extends JFrame implements ActionListener, WindowListener {
     }
 
     private void cargarIconoAplicacion() {
-        java.util.List<java.awt.Image> iconos = IconUtils.loadWindowIcons(ICONO_RECURSO);
-        if (!iconos.isEmpty()) {
-            super.setIconImages(iconos);
+        Image iconoAplicacion = IconUtils.loadImage(ICONO_RECURSO);
+        if (iconoAplicacion != null) {
+            super.setIconImage(iconoAplicacion);
+            configurarIconoTaskbar(iconoAplicacion);
+        }
+    }
+
+    private void configurarIconoTaskbar(Image iconoAplicacion) {
+        try {
+            if (Taskbar.isTaskbarSupported()) {
+                Taskbar taskbar = Taskbar.getTaskbar();
+                if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
+                    taskbar.setIconImage(iconoAplicacion);
+                }
+            }
+        } catch (UnsupportedOperationException | SecurityException e) {
+            Logger.error("Establecer icono en taskbar", e);
         }
     }
 

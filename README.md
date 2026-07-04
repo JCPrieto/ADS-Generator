@@ -1,5 +1,7 @@
 # ADS Generator
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=JCPrieto_ADS-Generator&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=JCPrieto_ADS-Generator)
+
 Asistente para crear guias ADS libres de errores y ayudar al CAU en la resolucion de incidencias. Automatiza la
 generacion de guias para el interprete ADS, reduciendo errores manuales.
 
@@ -38,6 +40,12 @@ Linux:
 mvn -q -Pjpackage-linux clean package
 ```
 
+Linux `.deb` instalable:
+
+```bash
+mvn -q -Pjpackage-linux-deb clean package
+```
+
 Windows:
 
 ```bash
@@ -53,8 +61,23 @@ mvn -q -Pjpackage-mac clean package
 Los paquetes se generan en `target/dist/` y los assets esperados para releases son:
 
 - `ads-generator-<version>-linux.zip`
+- `ads-generator-<version>-linux-ubuntu22.04.deb`
+- `ads-generator-<version>-linux-ubuntu24.04.deb`
 - `ads-generator-<version>-windows.zip`
 - `ads-generator-<version>-mac.zip`
+
+En Linux, el `.deb` es el paquete recomendado para Ubuntu/GNOME porque instala la entrada `.desktop` y el icono de la
+aplicacion en el sistema. El ZIP de Linux es portable y no registra automaticamente la aplicacion en el dock.
+El `.deb` de Ubuntu 22.04 se publica tambien en el repositorio APT configurado por el workflow de release.
+
+Instalacion desde el repositorio APT:
+
+```bash
+curl -fsSL https://jcprieto.github.io/jklabs-apt-repo/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/jklabs-archive-keyring.gpg >/dev/null
+echo "deb [signed-by=/usr/share/keyrings/jklabs-archive-keyring.gpg] https://jcprieto.github.io/jklabs-apt-repo stable main" | sudo tee /etc/apt/sources.list.d/jklabs.list
+sudo apt update
+sudo apt install ads-generator
+```
 
 ## Ejecutar
 
