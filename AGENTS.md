@@ -17,6 +17,7 @@
 - `mvn -q exec:java -Dexec.mainClass=gui.Principal` runs the main UI class (requires `exec-maven-plugin` if not already
   configured).
 - `mvn -q -Pjpackage-linux clean package` creates the Linux app image in `target/dist/`.
+- `mvn -q -Pjpackage-linux-deb clean package` creates the Linux `.deb` installer in `target/dist/`.
 - `mvn -q -Pjpackage-windows clean package` creates the Windows app image in `target/dist/`.
 - `mvn -q -Pjpackage-mac clean package` creates the macOS app image in `target/dist/`.
     - Note: packages must be built on their target OS (no cross-builds).
@@ -43,5 +44,8 @@
 - The project targets Java 21; ensure your local JDK matches `pom.xml`.
 - Assets belong in `src/main/resources` and should be referenced from code via the classpath.
 - Load icons through `auxiliar.IconUtils` using names relative to `src/main/resources/img/icons`.
+- Linux packaging resources and maintainer scripts belong in `src/main/resources/packaging/linux`.
 - User data paths are centralized in `auxiliar.UtilidadesFichero`; use `ads.projects.dir` and `ads.logs.dir` only as
   overrides.
+- Release automation for Linux APT uses the `APT_REPO_DISPATCH_TOKEN` GitHub secret and optional `APT_REPO_OWNER` /
+  `APT_REPO_NAME` repository variables; do not hard-code those values.

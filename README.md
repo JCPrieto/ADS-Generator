@@ -70,6 +70,15 @@ En Linux, el `.deb` es el paquete recomendado para Ubuntu/GNOME porque instala l
 aplicacion en el sistema. El ZIP de Linux es portable y no registra automaticamente la aplicacion en el dock.
 El `.deb` de Ubuntu 22.04 se publica tambien en el repositorio APT configurado por el workflow de release.
 
+Instalacion desde el repositorio APT:
+
+```bash
+curl -fsSL https://jcprieto.github.io/jklabs-apt-repo/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/jklabs-archive-keyring.gpg >/dev/null
+echo "deb [signed-by=/usr/share/keyrings/jklabs-archive-keyring.gpg] https://jcprieto.github.io/jklabs-apt-repo stable main" | sudo tee /etc/apt/sources.list.d/jklabs.list
+sudo apt update
+sudo apt install ads-generator
+```
+
 ## Ejecutar
 
 ```bash
