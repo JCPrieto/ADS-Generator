@@ -14,9 +14,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <app.mainClass>gui.Principal</app.mainClass>
         <app.name>ADS Generator</app.name>
+        <app.wmClass>es-jcprieto-ADSGenerator</app.wmClass>
         <app.icon>${project.basedir}/src/main/resources/img/icons/ADS2.png</app.icon>
         <app.icon.win>${project.basedir}/src/main/resources/img/icons/ADS2.ico</app.icon.win>
         <app.icon.mac>${project.build.directory}/jpackage/ADS2.icns</app.icon.mac>
+        <app.linuxResourceDir>${project.basedir}/src/main/resources/packaging/linux</app.linuxResourceDir>
         <sonar.organization>jcprieto</sonar.organization>
     </properties>
     <dependencies>
@@ -135,6 +137,12 @@
                                         <argument>${project.build.finalName}.jar</argument>
                                         <argument>--main-class</argument>
                                         <argument>${app.mainClass}</argument>
+                                        <argument>--java-options</argument>
+                                        <argument>-Dsun.awt.X11.awtAppClassName=${app.wmClass}</argument>
+                                        <argument>--java-options</argument>
+                                        <argument>-Dsun.awt.X11.XWMClass=${app.wmClass}</argument>
+                                        <argument>--java-options</argument>
+                                        <argument>--add-opens=java.desktop/sun.awt.X11=ALL-UNNAMED</argument>
                                         <argument>--icon</argument>
                                         <argument>${app.icon}</argument>
                                         <argument>--type</argument>
@@ -181,6 +189,64 @@
                                         <argument>${app.icon.win}</argument>
                                         <argument>--type</argument>
                                         <argument>app-image</argument>
+                                        <argument>--dest</argument>
+                                        <argument>${project.build.directory}/dist</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>jpackage-linux-deb</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.6.3</version>
+                        <executions>
+                            <execution>
+                                <id>jpackage</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>jpackage</executable>
+                                    <arguments>
+                                        <argument>--name</argument>
+                                        <argument>${app.name}</argument>
+                                        <argument>--app-version</argument>
+                                        <argument>${project.version}</argument>
+                                        <argument>--input</argument>
+                                        <argument>${project.build.directory}/jpackage/input</argument>
+                                        <argument>--main-jar</argument>
+                                        <argument>${project.build.finalName}.jar</argument>
+                                        <argument>--main-class</argument>
+                                        <argument>${app.mainClass}</argument>
+                                        <argument>--java-options</argument>
+                                        <argument>-Dsun.awt.X11.awtAppClassName=${app.wmClass}</argument>
+                                        <argument>--java-options</argument>
+                                        <argument>-Dsun.awt.X11.XWMClass=${app.wmClass}</argument>
+                                        <argument>--java-options</argument>
+                                        <argument>--add-opens=java.desktop/sun.awt.X11=ALL-UNNAMED</argument>
+                                        <argument>--icon</argument>
+                                        <argument>${app.icon}</argument>
+                                        <argument>--type</argument>
+                                        <argument>deb</argument>
+                                        <argument>--linux-package-name</argument>
+                                        <argument>ads-generator</argument>
+                                        <argument>--linux-deb-maintainer</argument>
+                                        <argument>Juan Carlos Prieto Silos</argument>
+                                        <argument>--linux-menu-group</argument>
+                                        <argument>Development</argument>
+                                        <argument>--linux-app-category</argument>
+                                        <argument>Development</argument>
+                                        <argument>--resource-dir</argument>
+                                        <argument>${app.linuxResourceDir}</argument>
                                         <argument>--dest</argument>
                                         <argument>${project.build.directory}/dist</argument>
                                     </arguments>

@@ -4,7 +4,8 @@ Todos los cambios notables de este proyecto se documentaran en este archivo.
 
 ## Unreleased
 
-- Pendiente de cambios.
+- Se anaden paquetes `.deb` para Ubuntu con entrada de escritorio e icono instalados para GNOME.
+- Se publica automaticamente el `.deb` de Ubuntu 22.04 en el repositorio APT configurado por la release.
 
 ## 1.1.0
 

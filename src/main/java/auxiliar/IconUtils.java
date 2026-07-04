@@ -2,6 +2,7 @@ package auxiliar;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +57,7 @@ public final class IconUtils {
         if (image == null) {
             return null;
         }
-        Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        return new ImageIcon(scaledImage);
+        return new ImageIcon(scaleImage(image, width, height));
     }
 
     private static List<Image> loadWindowIconsInternal(String name) {
@@ -69,9 +69,23 @@ public final class IconUtils {
         int[] sizes = {16, 24, 32, 48, 64, 128};
         List<Image> icons = new ArrayList<>(sizes.length);
         for (int size : sizes) {
-            icons.add(image.getScaledInstance(size, size, Image.SCALE_SMOOTH));
+            icons.add(scaleImage(image, size, size));
         }
         return icons;
+    }
+
+    private static BufferedImage scaleImage(Image image, int width, int height) {
+        BufferedImage scaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = scaledImage.createGraphics();
+        try {
+            graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            graphics.drawImage(image, 0, 0, width, height, null);
+        } finally {
+            graphics.dispose();
+        }
+        return scaledImage;
     }
 
     public static void clearCaches() {

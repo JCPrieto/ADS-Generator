@@ -40,6 +40,12 @@ Linux:
 mvn -q -Pjpackage-linux clean package
 ```
 
+Linux `.deb` instalable:
+
+```bash
+mvn -q -Pjpackage-linux-deb clean package
+```
+
 Windows:
 
 ```bash
@@ -55,8 +61,14 @@ mvn -q -Pjpackage-mac clean package
 Los paquetes se generan en `target/dist/` y los assets esperados para releases son:
 
 - `ads-generator-<version>-linux.zip`
+- `ads-generator-<version>-linux-ubuntu22.04.deb`
+- `ads-generator-<version>-linux-ubuntu24.04.deb`
 - `ads-generator-<version>-windows.zip`
 - `ads-generator-<version>-mac.zip`
+
+En Linux, el `.deb` es el paquete recomendado para Ubuntu/GNOME porque instala la entrada `.desktop` y el icono de la
+aplicacion en el sistema. El ZIP de Linux es portable y no registra automaticamente la aplicacion en el dock.
+El `.deb` de Ubuntu 22.04 se publica tambien en el repositorio APT configurado por el workflow de release.
 
 ## Ejecutar
 
